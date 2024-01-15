@@ -5,6 +5,7 @@ import (
 	"cleanArchApi/database/postgres/sqlc"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 )
@@ -23,6 +24,11 @@ func (r *userPostgresRepository) SelectAppUsersData() ([]entities.AppUser, error
 	appUsersModel, err := queries.GetUsers(context.TODO())
 
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			slog.Debug("SelectAppUsersData: no rows")
+			return appUsers, nil
+		}
+
 		slog.Error(fmt.Sprintf("SelectAppUsersData: %v", err))
 		return appUsers, err
 	}
