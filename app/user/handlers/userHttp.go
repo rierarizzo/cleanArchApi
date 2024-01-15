@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	responder "cleanArchApi/app/helpers/http"
+	"cleanArchApi/app/helpers/http/responder"
 	"cleanArchApi/app/user/usecases"
 	"github.com/labstack/echo/v4"
 	"net/http"
