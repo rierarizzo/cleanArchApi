@@ -1,3 +1,5 @@
+migration_path := ./database/postgres/migrations
+
 run:
 	go run main.go
 
@@ -8,4 +10,4 @@ sqlc:
 	sqlc generate
 
 migration create:
-	migrate create -ext sql -dir ./database/postgres/migrations $(name)
+	migrate create -ext sql -dir $(migration_path) $(name)
