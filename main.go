@@ -7,11 +7,10 @@ import (
 )
 
 func main() {
+	config.Logger()
 	cfg := config.GetConfig()
 
 	db := database.NewPostgresDatabase(&cfg.Db)
-
-	config.Logger()
 
 	server.NewEchoServer(&cfg.App, db.GetDb()).Start()
 }

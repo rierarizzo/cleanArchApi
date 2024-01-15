@@ -56,13 +56,6 @@ func GetConfig() Config {
 }
 
 func Logger() {
-	logger := slog.New(
-		slog.NewTextHandler(
-			os.Stdout, &slog.HandlerOptions{
-				Level:     slog.LevelDebug,
-				AddSource: true,
-			},
-		),
-	)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 }
