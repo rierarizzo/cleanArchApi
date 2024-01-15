@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -51,4 +53,16 @@ func GetConfig() Config {
 			TimeZone: viper.GetString("database.timezone"),
 		},
 	}
+}
+
+func Logger() {
+	logger := slog.New(
+		slog.NewTextHandler(
+			os.Stdout, &slog.HandlerOptions{
+				Level:     slog.LevelDebug,
+				AddSource: true,
+			},
+		),
+	)
+	slog.SetDefault(logger)
 }
