@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	appError "cleanArchApi/app/error"
 	"cleanArchApi/app/user/entities"
 	"cleanArchApi/database/postgres/sqlc"
 	"context"
@@ -30,7 +31,7 @@ func (r *userPostgresRepository) SelectAppUsersData() ([]entities.AppUser, error
 			return appUsers, nil
 		}
 
-		return appUsers, err
+		return appUsers, appError.ErrUnknown
 	}
 
 	for _, v := range appUsersModel {

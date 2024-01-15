@@ -20,7 +20,7 @@ func (h *userHttpHandler) GetUsers(c echo.Context) error {
 	users, err := h.userUsecase.GetAllUsers()
 
 	if err != nil {
-		return responder.Error(c, http.StatusInternalServerError, err)
+		return err
 	}
 
 	for _, user := range users {
@@ -33,5 +33,5 @@ func (h *userHttpHandler) GetUsers(c echo.Context) error {
 		)
 	}
 
-	return responder.Ok(c, http.StatusOK, "Users in DB", response)
+	return responder.Ok(c, http.StatusOK, response)
 }

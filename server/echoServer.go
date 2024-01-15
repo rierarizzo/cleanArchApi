@@ -2,10 +2,10 @@ package server
 
 import (
 	"cleanArchApi/config"
+	"cleanArchApi/server/echo/middlewares"
 	"database/sql"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 type echoServer struct {
@@ -23,7 +23,7 @@ func NewEchoServer(cfg *config.App, db *sql.DB) Server {
 }
 
 func (s *echoServer) Start() {
-	s.app.Use(middleware.Logger())
+	s.app.HTTPErrorHandler = middlewares.CustomHTTPErrorHandler
 
 	serverUrl := fmt.Sprintf(":%d", s.cfg.Port)
 	s.app.Logger.Fatal(s.app.Start(serverUrl))
