@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	httpHelper "cleanArchApi/app/helpers/http"
+	responder "cleanArchApi/app/helpers/http"
 	"cleanArchApi/app/user/usecases"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -20,7 +20,7 @@ func (h *userHttpHandler) GetUsers(c echo.Context) error {
 	users, err := h.userUsecase.GetAllUsers()
 
 	if err != nil {
-		return httpHelper.Error(c, http.StatusInternalServerError, err)
+		return responder.Error(c, http.StatusInternalServerError, err)
 	}
 
 	for _, user := range users {
@@ -33,5 +33,5 @@ func (h *userHttpHandler) GetUsers(c echo.Context) error {
 		)
 	}
 
-	return httpHelper.Ok(c, http.StatusOK, "Users in DB", response)
+	return responder.Ok(c, http.StatusOK, "Users in DB", response)
 }
