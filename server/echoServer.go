@@ -1,6 +1,9 @@
 package server
 
 import (
+	userHandlers "cleanArchApi/app/user/handlers"
+	userRepositories "cleanArchApi/app/user/repositories"
+	userUsecases "cleanArchApi/app/user/usecases"
 	"cleanArchApi/config"
 	"cleanArchApi/server/echo/middlewares"
 	"database/sql"
@@ -25,6 +28,19 @@ func NewEchoServer(cfg *config.App, db *sql.DB) Server {
 func (s *echoServer) Start() {
 	s.app.HTTPErrorHandler = middlewares.CustomHTTPErrorHandler
 
+	s.initializeUserHttpHandler()
+
 	serverUrl := fmt.Sprintf(":%d", s.cfg.Port)
 	s.app.Logger.Fatal(s.app.Start(serverUrl))
+}
+
+func (s *echoServer) initializeUserHttpHandler() {
+	userPostgresRepository := userRepositories.NewUserPostgresRepository(s.db)
+	userUsecase := userUsecases.NewUserUsecaseImpl(userPostgresRepository)
+
+	userHttpHandler := userHandlers.NewUserHttpHandler(userUsecase)
+
+	// Routers
+	userRouters := s.app.Group("v1/user")
+	userRouters.GET("", userHttpHandler.GetUsers)
 }
