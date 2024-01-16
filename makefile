@@ -1,4 +1,4 @@
-migration_path := ./database/postgres/migrations
+migration_path := database/postgres/migrations
 
 run:
 	go run main.go
@@ -9,5 +9,11 @@ build:
 sqlc:
 	sqlc generate
 
-migration create:
-	migrate create -ext sql -dir $(migration_path) $(name)
+goose_create:
+	goose -dir $(migration_path) create $(name) sql
+
+goose_up:
+	goose -dir $(migration_path) up
+
+goose_down:
+	goose -dir $(migration_path) down

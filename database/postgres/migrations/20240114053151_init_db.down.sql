@@ -1,2 +1,0 @@
-DROP TABLE IF EXISTS app_user;
-DROP TABLE IF EXISTS project;
