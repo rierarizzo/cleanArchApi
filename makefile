@@ -17,3 +17,6 @@ goose_up:
 
 goose_down:
 	goose -dir $(migration_path) down
+
+compose_up:
+	docker compose up

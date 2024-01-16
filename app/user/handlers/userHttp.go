@@ -16,7 +16,7 @@ func NewUserHttpHandler(userUsecase usecases.UserUsecase) UserHandler {
 }
 
 func (h *userHttpHandler) GetUsers(c echo.Context) error {
-	var response []userResponse
+	response := make([]userResponse, 0)
 	users, err := h.userUsecase.GetAllUsers()
 
 	if err != nil {
