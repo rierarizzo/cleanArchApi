@@ -1,11 +1,13 @@
 migration_path := database/postgres/migrations
 
+# Golang
 run:
 	go run main.go
 
 build:
 	go build main.go
 
+# Database
 sqlc:
 	sqlc generate
 
@@ -18,5 +20,6 @@ goose_up:
 goose_down:
 	goose -dir $(migration_path) down
 
+# Docker
 compose_up:
 	docker compose up
