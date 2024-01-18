@@ -22,7 +22,7 @@ func NewUserPostgresRepository(db *sql.DB) UserRepository {
 func (r *userPostgresRepository) SelectAppUsersData() ([]entities.AppUser, error) {
 	var appUsers []entities.AppUser
 	queries := sqlc.New(r.db)
-	appUsersModel, err := queries.GetUsers(context.TODO())
+	userRows, err := queries.GetUsers(context.TODO())
 
 	if err != nil {
 		slog.Error(fmt.Sprintf("SelectAppUsersData: %v", err))
@@ -34,14 +34,14 @@ func (r *userPostgresRepository) SelectAppUsersData() ([]entities.AppUser, error
 		return appUsers, appError.ErrUnknown
 	}
 
-	for _, v := range appUsersModel {
+	for _, row := range userRows {
 		appUsers = append(
 			appUsers, entities.AppUser{
-				Id:           uint32(v.AppUserID),
-				Username:     v.Username,
-				Email:        v.Email,
-				PasswordHash: v.PasswordHash,
-				CreatedAt:    v.CreatedAt.Time,
+				Id:           uint32(row.AppUserID),
+				Username:     row.Username,
+				Email:        row.Email,
+				PasswordHash: row.PasswordHash,
+				CreatedAt:    row.CreatedAt.Time,
 			},
 		)
 	}
