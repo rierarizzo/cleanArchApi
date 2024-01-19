@@ -1,26 +1,26 @@
 -- +goose Up
 -- +goose StatementBegin
 
-CREATE TABLE IF NOT EXISTS app_user (
-	app_user_id   SERIAL PRIMARY KEY,
-	username      VARCHAR(255) NOT NULL,
-	email         VARCHAR(255) NOT NULL,
-	password_hash VARCHAR(255) NOT NULL,
-	created_at    TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP);
+create table if not exists app_user (
+	app_user_id   serial primary key,
+	username      varchar(255) not null,
+	email         varchar(255) not null,
+	password_hash varchar(255) not null,
+	created_at    TIMESTAMPTZ default current_timestamp);
 
-CREATE TABLE IF NOT EXISTS project (
-	project_id   SERIAL PRIMARY KEY,
-	project_name VARCHAR(255) NOT NULL,
-	description  TEXT,
-	created_at   TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-	app_user_id  INT REFERENCES app_user (app_user_id) ON DELETE CASCADE);
+create table if not exists project (
+	project_id   serial primary key,
+	project_name varchar(255) not null,
+	description  text,
+	created_at   TIMESTAMPTZ default current_timestamp,
+	app_user_id  int references app_user (app_user_id) on delete cascade);
 
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 
-DROP TABLE IF EXISTS project;
-DROP TABLE IF EXISTS app_user;
+drop table if exists project;
+drop table if exists app_user;
 
 -- +goose StatementEnd
