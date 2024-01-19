@@ -1,7 +1,7 @@
 migration_path := database/postgres/migrations
 
 # Golang
-run:
+run_dev:
 	nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run main.go
 
 # Database
