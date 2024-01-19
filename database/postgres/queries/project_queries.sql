@@ -1,2 +1,2 @@
 -- name: GetProjects :many
-SELECT * FROM project;
+select * from project;
