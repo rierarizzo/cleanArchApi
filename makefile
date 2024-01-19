@@ -2,10 +2,7 @@ migration_path := database/postgres/migrations
 
 # Golang
 run:
-	go run main.go
-
-build:
-	go build main.go
+	nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run main.go
 
 # Database
 sqlc:
