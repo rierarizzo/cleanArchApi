@@ -1,3 +1,5 @@
 volumes/
 .idea/
 *.exe
+*.dll
+*.env
