@@ -51,8 +51,9 @@ create table if not exists product (
     image_url     varchar(255) not null,
     source_id     serial       not null,
     source_url    varchar(300),
-    offer         bool         not null default false,
+    offer         boolean      not null default false,
     offer_percent int                   default 0,
+    active        boolean      not null default true,
     created_at    timestamptz           default current_timestamp,
     updated_at    timestamptz           default current_timestamp,
     primary key (id),
@@ -72,12 +73,12 @@ create table product_in_order (
 -- +goose Down
 -- +goose StatementBegin
 
-drop table if exists products_order;
+drop table if exists product_in_order;
+drop table if exists product;
 drop table if exists product_category;
 drop table if exists product_size;
 drop table if exists product_color;
 drop table if exists product_source;
-drop table if exists product;
-drop table if exists product_in_order;
+drop table if exists products_order;
 
 -- +goose StatementEnd
