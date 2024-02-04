@@ -1,9 +1,9 @@
 package main
 
 import (
-	"cleanArchApi/config"
-	"cleanArchApi/database"
-	"cleanArchApi/server"
+	"myclothing/config"
+	"myclothing/database"
+	"myclothing/server"
 )
 
 func main() {

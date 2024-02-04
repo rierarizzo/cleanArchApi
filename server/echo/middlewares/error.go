@@ -1,12 +1,12 @@
 package middlewares
 
 import (
-	appError "cleanArchApi/app/error"
-	"cleanArchApi/app/helpers/http/responder"
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"log/slog"
+	appError "myclothing/app/error"
+	"myclothing/app/helpers/http/responder"
 	"net/http"
 )
 

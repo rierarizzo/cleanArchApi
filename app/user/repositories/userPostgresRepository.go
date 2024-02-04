@@ -1,14 +1,14 @@
 package repositories
 
 import (
-	appError "cleanArchApi/app/error"
-	"cleanArchApi/app/user/entities"
-	"cleanArchApi/database/postgres/sqlc"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"log/slog"
+	appError "myclothing/app/error"
+	"myclothing/app/user/entities"
+	"myclothing/database/postgres/sqlc"
 )
 
 type userPostgresRepository struct {

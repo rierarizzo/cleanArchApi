@@ -11,7 +11,7 @@ services:
       replicas: 1
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: cleanarchdb
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: myclothing
     volumes:
       - ./volumes/postgres/data/:/var/lib/postgresql/data/

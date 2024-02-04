@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"cleanArchApi/app/helpers/http/responder"
-	"cleanArchApi/app/user/usecases"
 	"github.com/labstack/echo/v4"
+	"myclothing/app/helpers/http/responder"
+	"myclothing/app/user/usecases"
 	"net/http"
 )
 

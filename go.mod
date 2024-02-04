@@ -1,4 +1,4 @@
-module cleanArchApi
+module myclothing
 
 go 1.21
 

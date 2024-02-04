@@ -1,26 +1,83 @@
 -- +goose Up
 -- +goose StatementBegin
 
-create table if not exists app_user (
-	app_user_id   serial primary key,
-	username      varchar(255) not null,
-	email         varchar(255) not null,
-	password_hash varchar(255) not null,
-	created_at    TIMESTAMPTZ default current_timestamp);
+create table if not exists products_order (
+    id             serial,
+    weight_payment money not null,
+    taxes          money not null,
+    total_amount   money not null,
+    arrived_at     timestamptz default current_timestamp,
+    created_at     timestamptz default current_timestamp,
+    updated_at     timestamptz default current_timestamp,
+    primary key (id));
 
-create table if not exists project (
-	project_id   serial primary key,
-	project_name varchar(255) not null,
-	description  text,
-	created_at   TIMESTAMPTZ default current_timestamp,
-	app_user_id  int references app_user (app_user_id) on delete cascade);
+create table if not exists product_category (
+    id                 serial,
+    parent_category_id serial,
+    name               varchar(255) not null,
+    description        varchar(255) not null,
+    primary key (id),
+    constraint fk_parent_category foreign key (parent_category_id) references product_category (id));
+
+create table if not exists product_size (
+    code        varchar(5),
+    description varchar(255) not null,
+    primary key (code));
+
+create table if not exists product_color (
+    id   serial,
+    name varchar(255) not null,
+    hex  varchar(10)  not null,
+    primary key (id));
+
+create table if not exists product_source (
+    id   serial,
+    name varchar(255) not null,
+    primary key (id));
+
+create table if not exists product (
+    id            serial,
+    category_id   serial       not null,
+    name          varchar(255) not null,
+    description   varchar(255),
+    price         money        not null,
+    cost          money        not null,
+    quantity      int          not null,
+    size_code     char         not null,
+    color_id      serial       not null,
+    brand         varchar(255) not null,
+    sku           varchar(12)  not null,
+    upc           varchar(12)  not null,
+    image_url     varchar(255) not null,
+    source_id     serial       not null,
+    source_url    varchar(300),
+    offer         bool         not null default false,
+    offer_percent int                   default 0,
+    created_at    timestamptz           default current_timestamp,
+    updated_at    timestamptz           default current_timestamp,
+    primary key (id),
+    constraint fk_category foreign key (category_id) references product_category (id),
+    constraint fk_size foreign key (size_code) references product_size (code),
+    constraint fk_color foreign key (color_id) references product_color (id),
+    constraint fk_source foreign key (source_id) references product_source (id));
+
+create table product_in_order (
+    order_id   serial not null,
+    product_id serial not null,
+    constraint fk_order foreign key (order_id) references products_order (id),
+    constraint fk_product foreign key (product_id) references product (id));
 
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 
-drop table if exists project;
-drop table if exists app_user;
+drop table if exists products_order;
+drop table if exists product_category;
+drop table if exists product_size;
+drop table if exists product_color;
+drop table if exists product_source;
+drop table if exists product;
+drop table if exists product_in_order;
 
 -- +goose StatementEnd

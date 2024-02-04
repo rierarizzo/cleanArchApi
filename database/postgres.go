@@ -1,11 +1,11 @@
 package database
 
 import (
-	"cleanArchApi/config"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
 	"log/slog"
+	"myclothing/config"
 	"time"
 )
 

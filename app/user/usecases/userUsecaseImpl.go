@@ -1,8 +1,8 @@
 package usecases
 
 import (
-	"cleanArchApi/app/user/entities"
-	"cleanArchApi/app/user/repositories"
+	"myclothing/app/user/entities"
+	"myclothing/app/user/repositories"
 )
 
 type userUsecaseImpl struct {

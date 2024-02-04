@@ -1,6 +1,6 @@
 package usecases
 
-import "cleanArchApi/app/user/entities"
+import "myclothing/app/user/entities"
 
 type UserUsecase interface {
 	GetAllUsers() ([]entities.AppUser, error)

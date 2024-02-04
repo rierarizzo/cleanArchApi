@@ -1,14 +1,14 @@
 package server
 
 import (
-	userHandlers "cleanArchApi/app/user/handlers"
-	userRepositories "cleanArchApi/app/user/repositories"
-	userUsecases "cleanArchApi/app/user/usecases"
-	"cleanArchApi/config"
-	"cleanArchApi/server/echo/middlewares"
 	"database/sql"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	userHandlers "myclothing/app/user/handlers"
+	userRepositories "myclothing/app/user/repositories"
+	userUsecases "myclothing/app/user/usecases"
+	"myclothing/config"
+	"myclothing/server/echo/middlewares"
 )
 
 type echoServer struct {
