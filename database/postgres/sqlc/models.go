@@ -8,18 +8,63 @@ import (
 	"database/sql"
 )
 
-type AppUser struct {
-	AppUserID    int32
-	Username     string
-	Email        string
-	PasswordHash string
+type Product struct {
+	ID           int32
+	CategoryID   int32
+	Name         string
+	Description  sql.NullString
+	Price        string
+	Cost         string
+	Quantity     int32
+	SizeCode     string
+	ColorID      int32
+	Brand        string
+	Sku          string
+	Upc          string
+	ImageUrl     string
+	SourceID     int32
+	SourceUrl    sql.NullString
+	Offer        bool
+	OfferPercent sql.NullInt32
+	Active       bool
 	CreatedAt    sql.NullTime
+	UpdatedAt    sql.NullTime
 }
 
-type Project struct {
-	ProjectID   int32
-	ProjectName string
-	Description sql.NullString
-	CreatedAt   sql.NullTime
-	AppUserID   sql.NullInt32
+type ProductCategory struct {
+	ID               int32
+	ParentCategoryID sql.NullInt32
+	Name             string
+	Description      string
+}
+
+type ProductColor struct {
+	ID   int32
+	Name string
+	Hex  string
+}
+
+type ProductInOrder struct {
+	OrderID   int32
+	ProductID int32
+}
+
+type ProductSize struct {
+	Code        string
+	Description string
+}
+
+type ProductSource struct {
+	ID   int32
+	Name string
+}
+
+type ProductsOrder struct {
+	ID            int32
+	WeightPayment string
+	Taxes         string
+	TotalAmount   string
+	ArrivedAt     sql.NullTime
+	CreatedAt     sql.NullTime
+	UpdatedAt     sql.NullTime
 }
