@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	userHandlers "myclothing/app/user/handlers"
-	userRepositories "myclothing/app/user/repositories"
-	userUsecases "myclothing/app/user/usecases"
+	productHandler "myclothing/app/product/handlers"
+	productRepositories "myclothing/app/product/repositories"
+	productUsecases "myclothing/app/product/usecases"
 	"myclothing/config"
 	"myclothing/server/echo/middlewares"
 )
@@ -28,19 +28,19 @@ func NewEchoServer(cfg *config.App, db *sql.DB) Server {
 func (s *echoServer) Start() {
 	s.app.HTTPErrorHandler = middlewares.CustomHTTPErrorHandler
 
-	s.initializeUserHttpHandler()
+	s.initializeProductHttpHandler()
 
 	serverUrl := fmt.Sprintf(":%d", s.cfg.Port)
 	s.app.Logger.Fatal(s.app.Start(serverUrl))
 }
 
-func (s *echoServer) initializeUserHttpHandler() {
-	userPostgresRepository := userRepositories.NewUserPostgresRepository(s.db)
-	userUsecase := userUsecases.NewUserUsecaseImpl(userPostgresRepository)
+func (s *echoServer) initializeProductHttpHandler() {
+	productPostgresRepo := productRepositories.NewProductPostgresRepository(s.db)
+	productUsecase := productUsecases.NewProductUsecaseImpl(productPostgresRepo)
 
-	userHttpHandler := userHandlers.NewUserHttpHandler(userUsecase)
+	productHttpHandler := productHandler.NewProductHttpHandler(productUsecase)
 
 	// Routers
-	userRouters := s.app.Group("v1/user")
-	userRouters.GET("", userHttpHandler.GetUsers)
+	productRouters := s.app.Group("v1/product")
+	productRouters.GET("", productHttpHandler.GetProducts)
 }
