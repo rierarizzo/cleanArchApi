@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	appError "myclothing/app/error"
 	"myclothing/app/product/entities"
@@ -44,28 +45,66 @@ func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error)
 	}
 
 	for _, row := range productRows {
-		category, err := r.SelectProductCategoryById(row.CategoryID)
-		if err != nil {
-			slog.Error("Failed to get product category:", err)
-			return nil, appError.ErrRepository
-		}
+		categoryChan := make(chan *entities.ProductCategory)
+		sizeChan := make(chan *entities.ProductSize)
+		colorChan := make(chan *entities.ProductColor)
+		sourceChan := make(chan *entities.ProductSource)
+		errChan := make(chan error, 4)
 
-		size, err := r.SelectProductSizeByCode(row.SizeCode)
-		if err != nil {
-			slog.Error("Failed to get product size:", err)
-			return nil, appError.ErrRepository
-		}
+		go func() {
+			category, err := r.SelectProductCategoryById(row.CategoryID)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to get product category: %v", err)
+				return
+			}
+			categoryChan <- category
+		}()
 
-		color, err := r.SelectProductColorById(row.ColorID)
-		if err != nil {
-			slog.Error("Failed to get product color:", err)
-			return nil, appError.ErrRepository
-		}
+		go func() {
+			size, err := r.SelectProductSizeByCode(row.SizeCode)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to get product size: %v", err)
+				return
+			}
+			sizeChan <- size
+		}()
 
-		source, err := r.SelectProductSourceById(row.SourceID)
-		if err != nil {
-			slog.Error("Failed to get product source:", err)
-			return nil, appError.ErrRepository
+		go func() {
+			color, err := r.SelectProductColorById(row.ColorID)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to get product color: %v", err)
+				return
+			}
+			colorChan <- color
+		}()
+
+		go func() {
+			source, err := r.SelectProductSourceById(row.SourceID)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to get product source: %v", err)
+				return
+			}
+			sourceChan <- source
+		}()
+
+		// Esperamos a que todas las goroutines finalicen
+		var categoryResult *entities.ProductCategory
+		var sizeResult *entities.ProductSize
+		var colorResult *entities.ProductColor
+		var sourceResult *entities.ProductSource
+		for i := 0; i < 4; i++ {
+			select {
+			case category := <-categoryChan:
+				categoryResult = category
+			case size := <-sizeChan:
+				sizeResult = size
+			case color := <-colorChan:
+				colorResult = color
+			case source := <-sourceChan:
+				sourceResult = source
+			case err := <-errChan:
+				return nil, err
+			}
 		}
 
 		product, err := r.rowToUser(row)
@@ -73,10 +112,10 @@ func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error)
 			return nil, err
 		}
 
-		product.Category = *category
-		product.Size = *size
-		product.Color = *color
-		product.Source = *source
+		product.Category = *categoryResult
+		product.Size = *sizeResult
+		product.Color = *colorResult
+		product.Source = *sourceResult
 
 		products = append(products, *product)
 	}
