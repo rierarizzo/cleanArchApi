@@ -87,6 +87,11 @@ func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error)
 			sourceChan <- source
 		}()
 
+		product, err := r.rowToUser(row)
+		if err != nil {
+			return nil, err
+		}
+
 		// Esperamos a que todas las goroutines finalicen
 		var categoryResult *entities.ProductCategory
 		var sizeResult *entities.ProductSize
@@ -105,11 +110,6 @@ func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error)
 			case err := <-errChan:
 				return nil, err
 			}
-		}
-
-		product, err := r.rowToUser(row)
-		if err != nil {
-			return nil, err
 		}
 
 		product.Category = *categoryResult
