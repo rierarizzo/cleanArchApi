@@ -9,22 +9,32 @@ import (
 	"myclothing/app/product/entities"
 	"myclothing/database/postgres/sqlc"
 	"strconv"
+	"time"
 )
 
 type productPostgresRepository struct {
 	productQueries *sqlc.Queries
+	ctxTimeout     context.Context
+	cancelFunc     context.CancelFunc
 }
 
 func NewProductPostgresRepository(db *sql.DB) ProductRepository {
 	productQueries := sqlc.New(db)
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), time.Second*3)
 
-	return &productPostgresRepository{productQueries: productQueries}
+	return &productPostgresRepository{
+		productQueries: productQueries,
+		ctxTimeout:     ctxTimeout,
+		cancelFunc:     cancel,
+	}
 }
 
 func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error) {
+	defer r.cancelFunc()
+
 	products := make([]entities.Product, 0)
 
-	productRows, err := r.productQueries.GetProjects(context.TODO())
+	productRows, err := r.productQueries.GetProjects(r.ctxTimeout)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return products, nil
@@ -46,26 +56,44 @@ func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error)
 }
 
 func (r *productPostgresRepository) SelectProductCategoryById(categoryId int) (*entities.ProductCategory, error) {
-	row, err := r.productQueries.GetProductCategoryById(context.TODO(), int32(categoryId))
+	defer r.cancelFunc()
+
+	row, err := r.productQueries.GetProductCategoryById(r.ctxTimeout, int32(categoryId))
 	if err != nil {
 		slog.Error("Unknown repository error:", err)
 		return nil, err
 	}
 
 	category := &entities.ProductCategory{
-		Id:          int(row.ID),
-		Name:        row.Name,
-		Description: row.Description,
+		Id:             int(row.ID),
+		Name:           row.Name,
+		ParentCategory: nil,
+		Description:    row.Description,
 	}
 
-	// TODO
-	// Lógica para traer todos los parents embebidos.
+	// There are only 2 levels of categories.
+	if row.ParentCategoryID.Valid {
+		row, err = r.productQueries.GetProductCategoryById(r.ctxTimeout, row.ParentCategoryID.Int32)
+		if err != nil {
+			slog.Error("Unknown repository error:", err)
+			return nil, err
+		}
+
+		category.ParentCategory = &entities.ProductCategory{
+			Id:             int(row.ID),
+			Name:           row.Name,
+			ParentCategory: nil,
+			Description:    row.Description,
+		}
+	}
 
 	return category, nil
 }
 
 func (r *productPostgresRepository) SelectProductSizeByCode(sizeCode string) (*entities.ProductSize, error) {
-	row, err := r.productQueries.GetProductSizeByCode(context.TODO(), sizeCode)
+	defer r.cancelFunc()
+
+	row, err := r.productQueries.GetProductSizeByCode(r.ctxTimeout, sizeCode)
 	if err != nil {
 		slog.Error("Unknown repository error:", err)
 		return nil, err
@@ -80,7 +108,9 @@ func (r *productPostgresRepository) SelectProductSizeByCode(sizeCode string) (*e
 }
 
 func (r *productPostgresRepository) SelectProductColorById(colorId int) (*entities.ProductColor, error) {
-	row, err := r.productQueries.GetProductColorById(context.TODO(), int32(colorId))
+	defer r.cancelFunc()
+
+	row, err := r.productQueries.GetProductColorById(r.ctxTimeout, int32(colorId))
 	if err != nil {
 		slog.Error("Unknown repository error:", err)
 		return nil, err
@@ -96,7 +126,9 @@ func (r *productPostgresRepository) SelectProductColorById(colorId int) (*entiti
 }
 
 func (r *productPostgresRepository) SelectProductSourceById(sourceId int) (*entities.ProductSource, error) {
-	row, err := r.productQueries.GetProductSourceById(context.TODO(), int32(sourceId))
+	defer r.cancelFunc()
+
+	row, err := r.productQueries.GetProductSourceById(r.ctxTimeout, int32(sourceId))
 	if err != nil {
 		slog.Error("Unknown repository error:", err)
 		return nil, err
