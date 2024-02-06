@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	appError "myclothing/app/error"
 	"myclothing/app/product/entities"
@@ -11,6 +12,8 @@ import (
 	"strconv"
 	"time"
 )
+
+const dbTimeout = time.Second * 5
 
 type productPostgresRepository struct {
 	db             *sql.DB
@@ -21,7 +24,7 @@ type productPostgresRepository struct {
 
 func NewProductPostgresRepository(db *sql.DB) ProductRepository {
 	productQueries := sqlc.New(db)
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), dbTimeout)
 
 	return &productPostgresRepository{
 		db:             db,
@@ -37,12 +40,17 @@ func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error)
 
 	productRows, err := r.productQueries.GetProjects(r.ctxTimeout)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
 			slog.Debug("No rows in product schema.")
 			return products, nil
+		case errors.Is(err, context.DeadlineExceeded):
+			slog.Error(fmt.Sprintf("Context timeout. Exceeded %v.", dbTimeout))
+			return nil, appError.ErrTimeout
+		default:
+			slog.Error("SelectProducts:", err)
+			return nil, appError.ErrRepository
 		}
-		slog.Error("SelectProducts:", err)
-		return nil, appError.ErrRepository
 	}
 
 	for _, row := range productRows {
