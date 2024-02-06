@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const dbTimeout = time.Second * 5
+const dbTimeout = time.Second * 10
 
 type productPostgresRepository struct {
 	db             *sql.DB
