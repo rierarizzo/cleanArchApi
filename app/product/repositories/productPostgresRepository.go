@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log/slog"
 	appError "myclothing/app/error"
 	"myclothing/app/product/entities"
@@ -14,6 +13,7 @@ import (
 )
 
 type productPostgresRepository struct {
+	db             *sql.DB
 	productQueries *sqlc.Queries
 	ctxTimeout     context.Context
 	cancelFunc     context.CancelFunc
@@ -24,6 +24,7 @@ func NewProductPostgresRepository(db *sql.DB) ProductRepository {
 	ctxTimeout, cancel := context.WithTimeout(context.Background(), time.Second*3)
 
 	return &productPostgresRepository{
+		db:             db,
 		productQueries: productQueries,
 		ctxTimeout:     ctxTimeout,
 		cancelFunc:     cancel,
@@ -32,91 +33,23 @@ func NewProductPostgresRepository(db *sql.DB) ProductRepository {
 
 func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error) {
 	defer r.cancelFunc()
-
 	products := make([]entities.Product, 0)
 
 	productRows, err := r.productQueries.GetProjects(r.ctxTimeout)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			slog.Debug("No rows in product schema.")
 			return products, nil
 		}
-		slog.Error("Unknown repository error:", err)
+		slog.Error("SelectProducts:", err)
 		return nil, appError.ErrRepository
 	}
 
 	for _, row := range productRows {
-		categoryChan := make(chan *entities.ProductCategory)
-		sizeChan := make(chan *entities.ProductSize)
-		colorChan := make(chan *entities.ProductColor)
-		sourceChan := make(chan *entities.ProductSource)
-		errChan := make(chan error, 4)
-
-		go func() {
-			category, err := r.SelectProductCategoryById(row.CategoryID)
-			if err != nil {
-				errChan <- fmt.Errorf("failed to get product category: %v", err)
-				return
-			}
-			categoryChan <- category
-		}()
-
-		go func() {
-			size, err := r.SelectProductSizeByCode(row.SizeCode)
-			if err != nil {
-				errChan <- fmt.Errorf("failed to get product size: %v", err)
-				return
-			}
-			sizeChan <- size
-		}()
-
-		go func() {
-			color, err := r.SelectProductColorById(row.ColorID)
-			if err != nil {
-				errChan <- fmt.Errorf("failed to get product color: %v", err)
-				return
-			}
-			colorChan <- color
-		}()
-
-		go func() {
-			source, err := r.SelectProductSourceById(row.SourceID)
-			if err != nil {
-				errChan <- fmt.Errorf("failed to get product source: %v", err)
-				return
-			}
-			sourceChan <- source
-		}()
-
 		product, err := r.rowToUser(row)
 		if err != nil {
 			return nil, err
 		}
-
-		// Esperamos a que todas las goroutines finalicen
-		var categoryResult *entities.ProductCategory
-		var sizeResult *entities.ProductSize
-		var colorResult *entities.ProductColor
-		var sourceResult *entities.ProductSource
-		for i := 0; i < 4; i++ {
-			select {
-			case category := <-categoryChan:
-				categoryResult = category
-			case size := <-sizeChan:
-				sizeResult = size
-			case color := <-colorChan:
-				colorResult = color
-			case source := <-sourceChan:
-				sourceResult = source
-			case err := <-errChan:
-				return nil, err
-			}
-		}
-
-		product.Category = *categoryResult
-		product.Size = *sizeResult
-		product.Color = *colorResult
-		product.Source = *sourceResult
-
 		products = append(products, *product)
 	}
 
@@ -128,32 +61,69 @@ func (r *productPostgresRepository) SelectProductCategoryById(categoryId int32) 
 
 	row, err := r.productQueries.GetProductCategoryById(r.ctxTimeout, categoryId)
 	if err != nil {
-		return nil, err
+		slog.Error("SelectProductCategoryById:", err)
+		return nil, appError.ErrRepository
 	}
 
 	category := &entities.ProductCategory{
-		Id:             int(row.ID),
-		Name:           row.Name,
-		ParentCategory: nil,
-		Description:    row.Description,
-	}
-
-	// There are only 2 levels of categories.
-	if row.ParentCategoryID.Valid {
-		row, err = r.productQueries.GetProductCategoryById(r.ctxTimeout, row.ParentCategoryID.Int32)
-		if err != nil {
-			return nil, err
-		}
-
-		category.ParentCategory = &entities.ProductCategory{
-			Id:             int(row.ID),
-			Name:           row.Name,
-			ParentCategory: nil,
-			Description:    row.Description,
-		}
+		Id:          int(row.ID),
+		Name:        row.Name,
+		Description: row.Description,
 	}
 
 	return category, nil
+}
+
+func (r *productPostgresRepository) SelectProductSubcategoryById(subcategoryId int32) (*entities.ProductSubcategory, error) {
+	defer r.cancelFunc()
+
+	row, err := r.productQueries.GetProductSubcategoryById(r.ctxTimeout, subcategoryId)
+	if err != nil {
+		slog.Error("SelectProductSubcategoryById:", err)
+		return nil, appError.ErrRepository
+	}
+
+	category, err := r.SelectProductCategoryById(row.ParentCategoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	subcategory := &entities.ProductSubcategory{
+		Id:             int(row.ID),
+		ParentCategory: category,
+		Name:           row.Name,
+		Description:    row.Description,
+	}
+
+	return subcategory, nil
+}
+
+func (r *productPostgresRepository) SelectProductSubcategoryByCategoryId(categoryId int32) ([]entities.ProductSubcategory, error) {
+	defer r.cancelFunc()
+
+	rows, err := r.productQueries.GetProductSubcategoryByCategoryId(r.ctxTimeout, categoryId)
+	if err != nil {
+		slog.Error("SelectProductSubcategoryByCategoryId:", err)
+		return nil, appError.ErrRepository
+	}
+
+	category, err := r.SelectProductCategoryById(categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	subcategories := make([]entities.ProductSubcategory, 0)
+	for _, row := range rows {
+		subcategory := &entities.ProductSubcategory{
+			Id:             int(row.ID),
+			ParentCategory: category,
+			Name:           row.Name,
+			Description:    row.Description,
+		}
+		subcategories = append(subcategories, *subcategory)
+	}
+
+	return subcategories, nil
 }
 
 func (r *productPostgresRepository) SelectProductSizeByCode(sizeCode string) (*entities.ProductSize, error) {
@@ -161,7 +131,8 @@ func (r *productPostgresRepository) SelectProductSizeByCode(sizeCode string) (*e
 
 	row, err := r.productQueries.GetProductSizeByCode(r.ctxTimeout, sizeCode)
 	if err != nil {
-		return nil, err
+		slog.Error("SelectProductSizeByCode:", err)
+		return nil, appError.ErrRepository
 	}
 
 	size := &entities.ProductSize{
@@ -177,6 +148,7 @@ func (r *productPostgresRepository) SelectProductColorById(colorId int32) (*enti
 
 	row, err := r.productQueries.GetProductColorById(r.ctxTimeout, colorId)
 	if err != nil {
+		slog.Error("SelectProductColorById:", err)
 		return nil, err
 	}
 
@@ -194,6 +166,7 @@ func (r *productPostgresRepository) SelectProductSourceById(sourceId int32) (*en
 
 	row, err := r.productQueries.GetProductSourceById(r.ctxTimeout, sourceId)
 	if err != nil {
+		slog.Error("SelectProductSourceById:", err)
 		return nil, err
 	}
 
@@ -205,34 +178,58 @@ func (r *productPostgresRepository) SelectProductSourceById(sourceId int32) (*en
 	return source, nil
 }
 
-func (r *productPostgresRepository) rowToUser(row sqlc.Product) (*entities.Product, error) {
-	price, err := strconv.ParseFloat(row.Price, 64)
+func (r *productPostgresRepository) rowToUser(row sqlc.GetProjectsRow) (*entities.Product, error) {
+	price, err := strconv.ParseFloat(row.ProductPrice, 64)
 	if err != nil {
 		slog.Error("Cannot convert price to float64:", err)
 		return nil, appError.ErrConversion
 	}
 
-	cost, err := strconv.ParseFloat(row.Cost, 64)
+	cost, err := strconv.ParseFloat(row.ProductCost, 64)
 	if err != nil {
 		slog.Error("Cannot convert cost to float64:", err)
 		return nil, appError.ErrConversion
 	}
 
 	return &entities.Product{
-		Id:           int(row.ID),
-		Name:         row.Name,
-		Description:  row.Description.String,
-		Price:        price,
-		Cost:         cost,
-		Brand:        row.Brand,
-		Sku:          row.Sku,
-		Upc:          row.Upc,
-		ImageUrl:     row.ImageUrl,
-		SourceUrl:    row.SourceUrl.String,
-		Offer:        row.Offer,
-		OfferPercent: int(row.OfferPercent.Int32),
-		Active:       row.Active,
-		CreatedAt:    row.CreatedAt.Time,
-		UpdatedAt:    row.UpdatedAt.Time,
+		Id: int(row.ProductID),
+		Category: entities.ProductCategory{
+			Id:          int(row.CategoryID),
+			Name:        row.CategoryName,
+			Description: row.CategoryDescription,
+		},
+		Subcategory: entities.ProductSubcategory{
+			Id:          int(row.SubcategoryID),
+			Name:        row.SubcategoryName,
+			Description: row.SubcategoryDescription,
+		},
+		Name:        row.ProductName,
+		Description: row.ProductDescription.String,
+		Price:       price,
+		Cost:        cost,
+		Quantity:    int(row.ProductQuantity),
+		Size: entities.ProductSize{
+			Code:        row.SizeCode,
+			Description: row.SizeDescription,
+		},
+		Color: entities.ProductColor{
+			Id:   int(row.ColorID),
+			Name: row.ColorName,
+			Hex:  row.ColorHex,
+		},
+		Brand:    row.ProductBrand,
+		Sku:      row.ProductSku,
+		Upc:      row.ProductUpc,
+		ImageUrl: row.ProductImageUrl,
+		Source: entities.ProductSource{
+			Id:   int(row.SourceID),
+			Name: row.SourceName,
+		},
+		SourceUrl:    row.ProductSourceUrl.String,
+		IsOffered:    row.ProductIsOffered,
+		OfferPercent: int(row.ProductOfferPercent.Int32),
+		IsActive:     row.ProductIsActive,
+		CreatedAt:    row.ProductCreatedAt.Time,
+		UpdatedAt:    row.ProductUpdatedAt.Time,
 	}, nil
 }

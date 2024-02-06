@@ -9,33 +9,32 @@ import (
 )
 
 type Product struct {
-	ID           int32
-	CategoryID   int32
-	Name         string
-	Description  sql.NullString
-	Price        string
-	Cost         string
-	Quantity     int32
-	SizeCode     string
-	ColorID      int32
-	Brand        string
-	Sku          string
-	Upc          string
-	ImageUrl     string
-	SourceID     int32
-	SourceUrl    sql.NullString
-	Offer        bool
-	OfferPercent sql.NullInt32
-	Active       bool
-	CreatedAt    sql.NullTime
-	UpdatedAt    sql.NullTime
+	ID            int32
+	SubcategoryID int32
+	Name          string
+	Description   sql.NullString
+	Price         string
+	Cost          string
+	Quantity      int32
+	SizeCode      string
+	ColorID       int32
+	Brand         string
+	Sku           string
+	Upc           string
+	ImageUrl      string
+	SourceID      int32
+	SourceUrl     sql.NullString
+	IsOffered     bool
+	OfferPercent  sql.NullInt32
+	IsActive      bool
+	CreatedAt     sql.NullTime
+	UpdatedAt     sql.NullTime
 }
 
 type ProductCategory struct {
-	ID               int32
-	ParentCategoryID sql.NullInt32
-	Name             string
-	Description      string
+	ID          int32
+	Name        string
+	Description string
 }
 
 type ProductColor struct {
@@ -57,6 +56,13 @@ type ProductSize struct {
 type ProductSource struct {
 	ID   int32
 	Name string
+}
+
+type ProductSubcategory struct {
+	ID               int32
+	ParentCategoryID int32
+	Name             string
+	Description      string
 }
 
 type ProductsOrder struct {

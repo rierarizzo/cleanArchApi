@@ -12,8 +12,14 @@ create table if not exists products_order (
     primary key (id));
 
 create table if not exists product_category (
+    id          serial,
+    name        varchar(255) not null,
+    description varchar(255) not null,
+    primary key (id));
+
+create table if not exists product_subcategory (
     id                 serial,
-    parent_category_id serial,
+    parent_category_id serial       not null,
     name               varchar(255) not null,
     description        varchar(255) not null,
     primary key (id),
@@ -36,28 +42,28 @@ create table if not exists product_source (
     primary key (id));
 
 create table if not exists product (
-    id            serial,
-    category_id   serial       not null,
-    name          varchar(255) not null,
-    description   varchar(255),
-    price         money        not null,
-    cost          money        not null,
-    quantity      int          not null,
-    size_code     char         not null,
-    color_id      serial       not null,
-    brand         varchar(255) not null,
-    sku           varchar(12)  not null,
-    upc           varchar(12)  not null,
-    image_url     varchar(255) not null,
-    source_id     serial       not null,
-    source_url    varchar(300),
-    offer         boolean      not null default false,
-    offer_percent int                   default 0,
-    active        boolean      not null default true,
-    created_at    timestamptz           default current_timestamp,
-    updated_at    timestamptz           default current_timestamp,
+    id             serial,
+    subcategory_id serial       not null,
+    name           varchar(255) not null,
+    description    varchar(255),
+    price          money        not null,
+    cost           money        not null,
+    quantity       int          not null,
+    size_code      char         not null,
+    color_id       serial       not null,
+    brand          varchar(255) not null,
+    sku            varchar(12)  not null,
+    upc            varchar(12)  not null,
+    image_url      varchar(255) not null,
+    source_id      serial       not null,
+    source_url     varchar(300),
+    is_offered     boolean      not null default false,
+    offer_percent  int                   default 0,
+    is_active      boolean      not null default true,
+    created_at     timestamptz           default current_timestamp,
+    updated_at     timestamptz           default current_timestamp,
     primary key (id),
-    constraint fk_category foreign key (category_id) references product_category (id),
+    constraint fk_category foreign key (subcategory_id) references product_subcategory (id),
     constraint fk_size foreign key (size_code) references product_size (code),
     constraint fk_color foreign key (color_id) references product_color (id),
     constraint fk_source foreign key (source_id) references product_source (id));
@@ -75,6 +81,7 @@ create table product_in_order (
 
 drop table if exists product_in_order;
 drop table if exists product;
+drop table if exists product_subcategory;
 drop table if exists product_category;
 drop table if exists product_size;
 drop table if exists product_color;
