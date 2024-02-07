@@ -38,7 +38,7 @@ func (r *productPostgresRepository) SelectProducts() ([]entities.Product, error)
 	defer r.cancelFunc()
 	products := make([]entities.Product, 0)
 
-	productRows, err := r.productQueries.GetProjects(r.ctxTimeout)
+	productRows, err := r.productQueries.GetProducts(r.ctxTimeout)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -186,7 +186,105 @@ func (r *productPostgresRepository) SelectProductSourceById(sourceId int32) (*en
 	return source, nil
 }
 
-func (r *productPostgresRepository) rowToUser(row sqlc.GetProjectsRow) (*entities.Product, error) {
+func (r *productPostgresRepository) InsertProduct(product entities.Product) (*entities.Product, error) {
+	defer r.cancelFunc()
+
+	description := sql.NullString{Valid: false}
+	if product.Description != nil {
+		description.String = *product.Description
+		description.Valid = true
+	}
+
+	sourceUrl := sql.NullString{Valid: false}
+	if product.SourceUrl != nil {
+		sourceUrl.String = *product.SourceUrl
+		sourceUrl.Valid = true
+	}
+
+	offerPercent := sql.NullInt32{Valid: false}
+	if product.OfferPercent != nil {
+		offerPercent.Int32 = int32(*product.OfferPercent)
+		offerPercent.Valid = true
+	}
+
+	row, err := r.productQueries.CreateProduct(r.ctxTimeout, sqlc.CreateProductParams{
+		SubcategoryID: int32(product.Subcategory.Id),
+		Name:          product.Name,
+		Description:   description,
+		Price:         fmt.Sprintf("%f", product.Price),
+		Cost:          fmt.Sprintf("%f", product.Cost),
+		Quantity:      int32(product.Quantity),
+		SizeCode:      product.Size.Code,
+		ColorID:       int32(product.Color.Id),
+		Brand:         product.Brand,
+		Sku:           product.Sku,
+		Upc:           product.Upc,
+		ImageUrl:      product.ImageUrl,
+		SourceID:      int32(product.Source.Id),
+		SourceUrl:     sourceUrl,
+		IsOffered:     product.IsOffered,
+		OfferPercent:  offerPercent,
+	})
+	if err != nil {
+		slog.Error("InsertProduct:", err)
+		return nil, err
+	}
+
+	product.Id = int(row.ID)
+
+	return &product, nil
+}
+
+func (r *productPostgresRepository) InsertProductCategory(productCategory entities.ProductCategory) (*entities.ProductCategory, error) {
+	defer r.cancelFunc()
+
+	row, err := r.productQueries.CreateProductCategory(r.ctxTimeout, sqlc.CreateProductCategoryParams{
+		Name:        productCategory.Name,
+		Description: productCategory.Description,
+	})
+	if err != nil {
+		slog.Error("InsertProductCategory:", err)
+		return nil, err
+	}
+
+	productCategory.Id = int(row.ID)
+
+	return &productCategory, nil
+}
+
+func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory entities.ProductSubcategory) (*entities.ProductSubcategory, error) {
+	defer r.cancelFunc()
+
+	row, err := r.productQueries.CreateProductSubcategory(r.ctxTimeout, sqlc.CreateProductSubcategoryParams{
+		ParentCategoryID: int32(productSubcategory.ParentCategory.Id),
+		Name:             productSubcategory.Name,
+		Description:      productSubcategory.Description,
+	})
+	if err != nil {
+		slog.Error("InsertProductSubcategory:", err)
+		return nil, err
+	}
+
+	productSubcategory.Id = int(row.ID)
+
+	return &productSubcategory, nil
+}
+
+func (r *productPostgresRepository) InsertProductSource(productSource entities.ProductSource) (*entities.ProductSource, error) {
+	defer r.cancelFunc()
+
+	row, err := r.productQueries.CreateProductSource(r.ctxTimeout, productSource.Name)
+	if err != nil {
+		slog.Error("InsertProductSource:", err)
+		return nil, err
+	}
+
+	productSource.Id = int(row.ID)
+
+	return &productSource, nil
+}
+
+func (r *productPostgresRepository) rowToUser(row sqlc.ProductView) (*entities.Product, error) {
 	price, err := strconv.ParseFloat(row.ProductPrice, 64)
 	if err != nil {
 		slog.Error("Cannot convert price to float64:", err)
@@ -198,6 +296,8 @@ func (r *productPostgresRepository) rowToUser(row sqlc.GetProjectsRow) (*entitie
 		slog.Error("Cannot convert cost to float64:", err)
 		return nil, appError.ErrConversion
 	}
+
+	offerPercent := int(row.ProductOfferPercent.Int32)
 
 	return &entities.Product{
 		Id: int(row.ProductID),
@@ -212,7 +312,7 @@ func (r *productPostgresRepository) rowToUser(row sqlc.GetProjectsRow) (*entitie
 			Description: row.SubcategoryDescription,
 		},
 		Name:        row.ProductName,
-		Description: row.ProductDescription.String,
+		Description: &row.ProductDescription.String,
 		Price:       price,
 		Cost:        cost,
 		Quantity:    int(row.ProductQuantity),
@@ -233,9 +333,9 @@ func (r *productPostgresRepository) rowToUser(row sqlc.GetProjectsRow) (*entitie
 			Id:   int(row.SourceID),
 			Name: row.SourceName,
 		},
-		SourceUrl:    row.ProductSourceUrl.String,
+		SourceUrl:    &row.ProductSourceUrl.String,
 		IsOffered:    row.ProductIsOffered,
-		OfferPercent: int(row.ProductOfferPercent.Int32),
+		OfferPercent: &offerPercent,
 		IsActive:     row.ProductIsActive,
 		CreatedAt:    row.ProductCreatedAt.Time,
 		UpdatedAt:    row.ProductUpdatedAt.Time,

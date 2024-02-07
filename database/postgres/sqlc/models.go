@@ -65,6 +65,39 @@ type ProductSubcategory struct {
 	Description      string
 }
 
+type ProductView struct {
+	ProductID                   int32
+	CategoryID                  int32
+	CategoryName                string
+	CategoryDescription         string
+	SubcategoryID               int32
+	SubcategoryParentCategoryID int32
+	SubcategoryName             string
+	SubcategoryDescription      string
+	ProductName                 string
+	ProductDescription          sql.NullString
+	ProductPrice                string
+	ProductCost                 string
+	ProductQuantity             int32
+	SizeCode                    string
+	SizeDescription             string
+	ColorID                     int32
+	ColorName                   string
+	ColorHex                    string
+	ProductBrand                string
+	ProductSku                  string
+	ProductUpc                  string
+	ProductImageUrl             string
+	SourceID                    int32
+	SourceName                  string
+	ProductSourceUrl            sql.NullString
+	ProductIsOffered            bool
+	ProductOfferPercent         sql.NullInt32
+	ProductIsActive             bool
+	ProductCreatedAt            sql.NullTime
+	ProductUpdatedAt            sql.NullTime
+}
+
 type ProductsOrder struct {
 	ID            int32
 	WeightPayment string

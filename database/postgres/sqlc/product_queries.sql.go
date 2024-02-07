@@ -10,100 +10,134 @@ import (
 	"database/sql"
 )
 
-const getProductCategoryById = `-- name: GetProductCategoryById :one
-select id, name, description
-from product_category
-where id = $1
+const createProduct = `-- name: CreateProduct :one
+insert
+	into product
+		( subcategory_id, name, description, price, cost, quantity, size_code, color_id, brand, sku, upc, image_url,
+		  source_id, source_url, is_offered, offer_percent )
+	values
+		( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16 )
+	returning id, subcategory_id, name, description, price, cost, quantity, size_code, color_id, brand, sku, upc, image_url, source_id, source_url, is_offered, offer_percent, is_active, created_at, updated_at
 `
 
-func (q *Queries) GetProductCategoryById(ctx context.Context, id int32) (ProductCategory, error) {
-	row := q.db.QueryRowContext(ctx, getProductCategoryById, id)
+type CreateProductParams struct {
+	SubcategoryID int32
+	Name          string
+	Description   sql.NullString
+	Price         string
+	Cost          string
+	Quantity      int32
+	SizeCode      string
+	ColorID       int32
+	Brand         string
+	Sku           string
+	Upc           string
+	ImageUrl      string
+	SourceID      int32
+	SourceUrl     sql.NullString
+	IsOffered     bool
+	OfferPercent  sql.NullInt32
+}
+
+func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
+	row := q.db.QueryRowContext(ctx, createProduct,
+		arg.SubcategoryID,
+		arg.Name,
+		arg.Description,
+		arg.Price,
+		arg.Cost,
+		arg.Quantity,
+		arg.SizeCode,
+		arg.ColorID,
+		arg.Brand,
+		arg.Sku,
+		arg.Upc,
+		arg.ImageUrl,
+		arg.SourceID,
+		arg.SourceUrl,
+		arg.IsOffered,
+		arg.OfferPercent,
+	)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.SubcategoryID,
+		&i.Name,
+		&i.Description,
+		&i.Price,
+		&i.Cost,
+		&i.Quantity,
+		&i.SizeCode,
+		&i.ColorID,
+		&i.Brand,
+		&i.Sku,
+		&i.Upc,
+		&i.ImageUrl,
+		&i.SourceID,
+		&i.SourceUrl,
+		&i.IsOffered,
+		&i.OfferPercent,
+		&i.IsActive,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createProductCategory = `-- name: CreateProductCategory :one
+insert
+	into product_category
+		( name, description )
+	values
+		( $1, $2 )
+	returning id, name, description
+`
+
+type CreateProductCategoryParams struct {
+	Name        string
+	Description string
+}
+
+func (q *Queries) CreateProductCategory(ctx context.Context, arg CreateProductCategoryParams) (ProductCategory, error) {
+	row := q.db.QueryRowContext(ctx, createProductCategory, arg.Name, arg.Description)
 	var i ProductCategory
 	err := row.Scan(&i.ID, &i.Name, &i.Description)
 	return i, err
 }
 
-const getProductColorById = `-- name: GetProductColorById :one
-select id, name, hex
-from product_color
-where id = $1
+const createProductSource = `-- name: CreateProductSource :one
+insert
+	into product_source
+		( name )
+	values
+		( $1 )
+	returning id, name
 `
 
-func (q *Queries) GetProductColorById(ctx context.Context, id int32) (ProductColor, error) {
-	row := q.db.QueryRowContext(ctx, getProductColorById, id)
-	var i ProductColor
-	err := row.Scan(&i.ID, &i.Name, &i.Hex)
-	return i, err
-}
-
-const getProductSizeByCode = `-- name: GetProductSizeByCode :one
-select code, description
-from product_size
-where code = $1
-`
-
-func (q *Queries) GetProductSizeByCode(ctx context.Context, code string) (ProductSize, error) {
-	row := q.db.QueryRowContext(ctx, getProductSizeByCode, code)
-	var i ProductSize
-	err := row.Scan(&i.Code, &i.Description)
-	return i, err
-}
-
-const getProductSourceById = `-- name: GetProductSourceById :one
-select id, name
-from product_source
-where id = $1
-`
-
-func (q *Queries) GetProductSourceById(ctx context.Context, id int32) (ProductSource, error) {
-	row := q.db.QueryRowContext(ctx, getProductSourceById, id)
+func (q *Queries) CreateProductSource(ctx context.Context, name string) (ProductSource, error) {
+	row := q.db.QueryRowContext(ctx, createProductSource, name)
 	var i ProductSource
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
 }
 
-const getProductSubcategoryByCategoryId = `-- name: GetProductSubcategoryByCategoryId :many
-select id, parent_category_id, name, description
-from product_subcategory
-where parent_category_id = $1
+const createProductSubcategory = `-- name: CreateProductSubcategory :one
+insert
+	into product_subcategory
+		( parent_category_id, name, description )
+	values
+		( $1, $2, $3 )
+	returning id, parent_category_id, name, description
 `
 
-func (q *Queries) GetProductSubcategoryByCategoryId(ctx context.Context, parentCategoryID int32) ([]ProductSubcategory, error) {
-	rows, err := q.db.QueryContext(ctx, getProductSubcategoryByCategoryId, parentCategoryID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ProductSubcategory
-	for rows.Next() {
-		var i ProductSubcategory
-		if err := rows.Scan(
-			&i.ID,
-			&i.ParentCategoryID,
-			&i.Name,
-			&i.Description,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type CreateProductSubcategoryParams struct {
+	ParentCategoryID int32
+	Name             string
+	Description      string
 }
 
-const getProductSubcategoryById = `-- name: GetProductSubcategoryById :one
-select id, parent_category_id, name, description
-from product_subcategory
-where id = $1
-`
-
-func (q *Queries) GetProductSubcategoryById(ctx context.Context, id int32) (ProductSubcategory, error) {
-	row := q.db.QueryRowContext(ctx, getProductSubcategoryById, id)
+func (q *Queries) CreateProductSubcategory(ctx context.Context, arg CreateProductSubcategoryParams) (ProductSubcategory, error) {
+	row := q.db.QueryRowContext(ctx, createProductSubcategory, arg.ParentCategoryID, arg.Name, arg.Description)
 	var i ProductSubcategory
 	err := row.Scan(
 		&i.ID,
@@ -114,46 +148,52 @@ func (q *Queries) GetProductSubcategoryById(ctx context.Context, id int32) (Prod
 	return i, err
 }
 
-const getProjects = `-- name: GetProjects :many
+const getProductById = `-- name: GetProductById :one
 select pro.id                       as "product_id",
-       pro_ca.id                    as "category_id",
-       pro_ca.name                  as "category_name",
-       pro_ca.description           as "category_description",
-       pro_subca.id                 as "subcategory_id",
-       pro_subca.parent_category_id as "subcategory_parent_category_id",
-       pro_subca.name               as "subcategory_name",
-       pro_subca.description        as "subcategory_description",
-       pro.name                     as "product_name",
-       pro.description              as "product_description",
-       pro.price                    as "product_price",
-       pro.cost                     as "product_cost",
-       pro.quantity                 as "product_quantity",
-       pro_si.code                  as "size_code",
-       pro_si.description           as "size_description",
-       pro_co.id                    as "color_id",
-       pro_co.name                  as "color_name",
-       pro_co.hex                   as "color_hex",
-       pro.brand                    as "product_brand",
-       pro.sku                      as "product_sku",
-       pro.upc                      as "product_upc",
-       pro.image_url                as "product_image_url",
-       pro_so.id                    as "source_id",
-       pro_so.name                  as "source_name",
-       pro.source_url               as "product_source_url",
-       pro.is_offered               as "product_is_offered",
-       pro.offer_percent            as "product_offer_percent",
-       pro.is_active                as "product_is_active",
-       pro.created_at               as "product_created_at",
-       pro.updated_at               as "product_updated_at"
-from product as pro
-         inner join product_subcategory as pro_subca on pro.subcategory_id = pro_subca.id
-         inner join product_category as pro_ca on pro_subca.parent_category_id = pro_ca.id
-         inner join product_size as pro_si on pro.size_code = pro_si.code
-         inner join product_color as pro_co on pro.color_id = pro_co.id
-         inner join product_source as pro_so on pro.source_id = pro_so.id
+	   pro_ca.id                    as "category_id",
+	   pro_ca.name                  as "category_name",
+	   pro_ca.description           as "category_description",
+	   pro_subca.id                 as "subcategory_id",
+	   pro_subca.parent_category_id as "subcategory_parent_category_id",
+	   pro_subca.name               as "subcategory_name",
+	   pro_subca.description        as "subcategory_description",
+	   pro.name                     as "product_name",
+	   pro.description              as "product_description",
+	   pro.price                    as "product_price",
+	   pro.cost                     as "product_cost",
+	   pro.quantity                 as "product_quantity",
+	   pro_si.code                  as "size_code",
+	   pro_si.description           as "size_description",
+	   pro_co.id                    as "color_id",
+	   pro_co.name                  as "color_name",
+	   pro_co.hex                   as "color_hex",
+	   pro.brand                    as "product_brand",
+	   pro.sku                      as "product_sku",
+	   pro.upc                      as "product_upc",
+	   pro.image_url                as "product_image_url",
+	   pro_so.id                    as "source_id",
+	   pro_so.name                  as "source_name",
+	   pro.source_url               as "product_source_url",
+	   pro.is_offered               as "product_is_offered",
+	   pro.offer_percent            as "product_offer_percent",
+	   pro.is_active                as "product_is_active",
+	   pro.created_at               as "product_created_at",
+	   pro.updated_at               as "product_updated_at"
+	from product                            as pro
+			 inner join product_subcategory as pro_subca
+						on pro.subcategory_id = pro_subca.id
+			 inner join product_category    as pro_ca
+						on pro_subca.parent_category_id = pro_ca.id
+			 inner join product_size        as pro_si
+						on pro.size_code = pro_si.code
+			 inner join product_color       as pro_co
+						on pro.color_id = pro_co.id
+			 inner join product_source      as pro_so
+						on pro.source_id = pro_so.id
+	where pro.id = $1
 `
 
-type GetProjectsRow struct {
+type GetProductByIdRow struct {
 	ProductID                   int32
 	CategoryID                  int32
 	CategoryName                string
@@ -186,15 +226,167 @@ type GetProjectsRow struct {
 	ProductUpdatedAt            sql.NullTime
 }
 
-func (q *Queries) GetProjects(ctx context.Context) ([]GetProjectsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getProjects)
+func (q *Queries) GetProductById(ctx context.Context, id int32) (GetProductByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getProductById, id)
+	var i GetProductByIdRow
+	err := row.Scan(
+		&i.ProductID,
+		&i.CategoryID,
+		&i.CategoryName,
+		&i.CategoryDescription,
+		&i.SubcategoryID,
+		&i.SubcategoryParentCategoryID,
+		&i.SubcategoryName,
+		&i.SubcategoryDescription,
+		&i.ProductName,
+		&i.ProductDescription,
+		&i.ProductPrice,
+		&i.ProductCost,
+		&i.ProductQuantity,
+		&i.SizeCode,
+		&i.SizeDescription,
+		&i.ColorID,
+		&i.ColorName,
+		&i.ColorHex,
+		&i.ProductBrand,
+		&i.ProductSku,
+		&i.ProductUpc,
+		&i.ProductImageUrl,
+		&i.SourceID,
+		&i.SourceName,
+		&i.ProductSourceUrl,
+		&i.ProductIsOffered,
+		&i.ProductOfferPercent,
+		&i.ProductIsActive,
+		&i.ProductCreatedAt,
+		&i.ProductUpdatedAt,
+	)
+	return i, err
+}
+
+const getProductCategoryById = `-- name: GetProductCategoryById :one
+select id, name, description
+	from product_category
+	where
+		id = $1
+`
+
+func (q *Queries) GetProductCategoryById(ctx context.Context, id int32) (ProductCategory, error) {
+	row := q.db.QueryRowContext(ctx, getProductCategoryById, id)
+	var i ProductCategory
+	err := row.Scan(&i.ID, &i.Name, &i.Description)
+	return i, err
+}
+
+const getProductColorById = `-- name: GetProductColorById :one
+select id, name, hex
+	from product_color
+	where
+		id = $1
+`
+
+func (q *Queries) GetProductColorById(ctx context.Context, id int32) (ProductColor, error) {
+	row := q.db.QueryRowContext(ctx, getProductColorById, id)
+	var i ProductColor
+	err := row.Scan(&i.ID, &i.Name, &i.Hex)
+	return i, err
+}
+
+const getProductSizeByCode = `-- name: GetProductSizeByCode :one
+select code, description
+	from product_size
+	where
+		code = $1
+`
+
+func (q *Queries) GetProductSizeByCode(ctx context.Context, code string) (ProductSize, error) {
+	row := q.db.QueryRowContext(ctx, getProductSizeByCode, code)
+	var i ProductSize
+	err := row.Scan(&i.Code, &i.Description)
+	return i, err
+}
+
+const getProductSourceById = `-- name: GetProductSourceById :one
+select id, name
+	from product_source
+	where
+		id = $1
+`
+
+func (q *Queries) GetProductSourceById(ctx context.Context, id int32) (ProductSource, error) {
+	row := q.db.QueryRowContext(ctx, getProductSourceById, id)
+	var i ProductSource
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const getProductSubcategoryByCategoryId = `-- name: GetProductSubcategoryByCategoryId :many
+select id, parent_category_id, name, description
+	from product_subcategory
+	where
+		parent_category_id = $1
+`
+
+func (q *Queries) GetProductSubcategoryByCategoryId(ctx context.Context, parentCategoryID int32) ([]ProductSubcategory, error) {
+	rows, err := q.db.QueryContext(ctx, getProductSubcategoryByCategoryId, parentCategoryID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetProjectsRow
+	var items []ProductSubcategory
 	for rows.Next() {
-		var i GetProjectsRow
+		var i ProductSubcategory
+		if err := rows.Scan(
+			&i.ID,
+			&i.ParentCategoryID,
+			&i.Name,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProductSubcategoryById = `-- name: GetProductSubcategoryById :one
+select id, parent_category_id, name, description
+	from product_subcategory
+	where
+		id = $1
+`
+
+func (q *Queries) GetProductSubcategoryById(ctx context.Context, id int32) (ProductSubcategory, error) {
+	row := q.db.QueryRowContext(ctx, getProductSubcategoryById, id)
+	var i ProductSubcategory
+	err := row.Scan(
+		&i.ID,
+		&i.ParentCategoryID,
+		&i.Name,
+		&i.Description,
+	)
+	return i, err
+}
+
+const getProducts = `-- name: GetProducts :many
+select product_id, category_id, category_name, category_description, subcategory_id, subcategory_parent_category_id, subcategory_name, subcategory_description, product_name, product_description, product_price, product_cost, product_quantity, size_code, size_description, color_id, color_name, color_hex, product_brand, product_sku, product_upc, product_image_url, source_id, source_name, product_source_url, product_is_offered, product_offer_percent, product_is_active, product_created_at, product_updated_at from product_view
+`
+
+func (q *Queries) GetProducts(ctx context.Context) ([]ProductView, error) {
+	rows, err := q.db.QueryContext(ctx, getProducts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProductView
+	for rows.Next() {
+		var i ProductView
 		if err := rows.Scan(
 			&i.ProductID,
 			&i.CategoryID,
