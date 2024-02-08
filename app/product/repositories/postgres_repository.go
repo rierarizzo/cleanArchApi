@@ -186,7 +186,7 @@ func (r *productPostgresRepository) SelectProductSourceById(sourceId int32) (*en
 	return source, nil
 }
 
-func (r *productPostgresRepository) InsertProduct(product entities.Product) (*entities.Product, error) {
+func (r *productPostgresRepository) InsertProduct(product *entities.Product) error {
 	defer r.cancelFunc()
 
 	description := sql.NullString{Valid: false}
@@ -227,15 +227,15 @@ func (r *productPostgresRepository) InsertProduct(product entities.Product) (*en
 	})
 	if err != nil {
 		slog.Error("InsertProduct:", err)
-		return nil, err
+		return err
 	}
 
 	product.Id = int(row.ID)
 
-	return &product, nil
+	return nil
 }
 
-func (r *productPostgresRepository) InsertProductCategory(productCategory entities.ProductCategory) (*entities.ProductCategory, error) {
+func (r *productPostgresRepository) InsertProductCategory(productCategory *entities.ProductCategory) error {
 	defer r.cancelFunc()
 
 	row, err := r.productQueries.CreateProductCategory(r.ctxTimeout, sqlc.CreateProductCategoryParams{
@@ -244,15 +244,15 @@ func (r *productPostgresRepository) InsertProductCategory(productCategory entiti
 	})
 	if err != nil {
 		slog.Error("InsertProductCategory:", err)
-		return nil, err
+		return err
 	}
 
 	productCategory.Id = int(row.ID)
 
-	return &productCategory, nil
+	return nil
 }
 
-func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory entities.ProductSubcategory) (*entities.ProductSubcategory, error) {
+func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory *entities.ProductSubcategory) error {
 	defer r.cancelFunc()
 
 	row, err := r.productQueries.CreateProductSubcategory(r.ctxTimeout, sqlc.CreateProductSubcategoryParams{
@@ -262,26 +262,26 @@ func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory 
 	})
 	if err != nil {
 		slog.Error("InsertProductSubcategory:", err)
-		return nil, err
+		return err
 	}
 
 	productSubcategory.Id = int(row.ID)
 
-	return &productSubcategory, nil
+	return nil
 }
 
-func (r *productPostgresRepository) InsertProductSource(productSource entities.ProductSource) (*entities.ProductSource, error) {
+func (r *productPostgresRepository) InsertProductSource(productSource *entities.ProductSource) error {
 	defer r.cancelFunc()
 
 	row, err := r.productQueries.CreateProductSource(r.ctxTimeout, productSource.Name)
 	if err != nil {
 		slog.Error("InsertProductSource:", err)
-		return nil, err
+		return err
 	}
 
 	productSource.Id = int(row.ID)
 
-	return &productSource, nil
+	return nil
 }
 
 func (r *productPostgresRepository) rowToUser(row sqlc.ProductView) (*entities.Product, error) {

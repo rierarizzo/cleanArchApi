@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"fmt"
+	"log/slog"
 	"myclothing/app/product/entities"
 	"myclothing/app/product/repositories"
 	"time"
@@ -16,25 +17,55 @@ func NewProductUsecaseImpl(productRepo repositories.ProductRepository) ProductUs
 }
 
 func (u *productUsecaseImpl) GetProducts() ([]entities.Product, error) {
-	return u.productRepo.SelectProducts()
+	products, err := u.productRepo.SelectProducts()
+	if err != nil {
+		slog.Debug(fmt.Sprintf("%v products returned", len(products)))
+		return nil, err
+	}
+
+	return products, nil
 }
 
-func (u *productUsecaseImpl) CreateProduct(product entities.Product) (*entities.Product, error) {
-	u.GenerateSku(&product)
+func (u *productUsecaseImpl) CreateProduct(product *entities.Product) error {
+	u.GenerateSku(product)
 
-	return u.productRepo.InsertProduct(product)
+	err := u.productRepo.InsertProduct(product)
+	if err != nil {
+		slog.Debug("Product created with ID:", product.Id)
+		return err
+	}
+
+	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductCategory(productCategory entities.ProductCategory) (*entities.ProductCategory, error) {
-	return u.productRepo.InsertProductCategory(productCategory)
+func (u *productUsecaseImpl) CreateProductCategory(productCategory *entities.ProductCategory) error {
+	err := u.productRepo.InsertProductCategory(productCategory)
+	if err != nil {
+		slog.Debug("Product category created with ID:", productCategory.Id)
+		return err
+	}
+
+	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductSubcategory(productSubcategory entities.ProductSubcategory) (*entities.ProductSubcategory, error) {
-	return u.productRepo.InsertProductSubcategory(productSubcategory)
+func (u *productUsecaseImpl) CreateProductSubcategory(productSubcategory *entities.ProductSubcategory) error {
+	err := u.productRepo.InsertProductSubcategory(productSubcategory)
+	if err != nil {
+		slog.Debug("Product subcategory created with ID:", productSubcategory.Id)
+		return err
+	}
+
+	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductSource(productSource entities.ProductSource) (*entities.ProductSource, error) {
-	return u.productRepo.InsertProductSource(productSource)
+func (u *productUsecaseImpl) CreateProductSource(productSource *entities.ProductSource) error {
+	err := u.productRepo.InsertProductSource(productSource)
+	if err != nil {
+		slog.Debug("Product source created with ID:", productSource.Id)
+		return err
+	}
+
+	return nil
 }
 
 func (u *productUsecaseImpl) GenerateSku(product *entities.Product) {
