@@ -2,9 +2,9 @@ version: 2
 sql:
   - engine: "postgresql"
     schema: "migrations/"
-    queries: "app/persistence/sqlc/queries/"
+    queries: "api/persistence/sqlc/queries/"
     gen:
       go:
         package: "sqlc"
-        out: "app/persistence/sqlc"
+        out: "api/persistence/sqlc"
         sql_package: "lib/pq"

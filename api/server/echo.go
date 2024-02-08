@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	productHandler "myclothing/app/handlers/product/http"
-	echo2 "myclothing/app/middlewares/echo"
-	productRepositories "myclothing/app/persistence/product/postgres"
-	productUsecases "myclothing/app/usecases/product/default"
+	productRepositories "myclothing/api/persistence/product/postgres"
+	productHandler "myclothing/api/server/handlers/product/http"
+	echo2 "myclothing/api/server/middlewares"
+	productUsecases "myclothing/api/usecases/product/default"
 	"myclothing/config"
 )
 

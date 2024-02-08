@@ -1,7 +1,7 @@
 package order
 
 import (
-	"myclothing/app/domain/product"
+	"myclothing/api/domain/product"
 	"time"
 )
 

@@ -3,9 +3,9 @@ package _default
 import (
 	"fmt"
 	"log/slog"
-	productDomain "myclothing/app/domain/product"
-	productRepo "myclothing/app/persistence/product"
-	productUsecase "myclothing/app/usecases/product"
+	productDomain "myclothing/api/domain/product"
+	productRepo "myclothing/api/persistence/product"
+	productUsecase "myclothing/api/usecases/product"
 	"time"
 )
 

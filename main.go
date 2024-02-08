@@ -1,16 +1,16 @@
 package main
 
 import (
+	"myclothing/api/persistence"
+	"myclothing/api/server"
 	"myclothing/config"
-	"myclothing/database"
-	"myclothing/server"
 )
 
 func main() {
 	config.Logger()
 	cfg := config.GetConfig()
 
-	db := database.NewPostgresDatabase(&cfg.Db)
+	db := persistence.NewPostgresDatabase(&cfg.Db)
 
 	server.NewEchoServer(&cfg.App, db.GetDb()).Start()
 }

@@ -2,9 +2,9 @@ package http
 
 import (
 	"github.com/labstack/echo/v4"
-	product2 "myclothing/app/handlers/product"
-	"myclothing/app/helpers/http/responder"
-	"myclothing/app/usecases/product"
+	productHandler "myclothing/api/server/handlers/product"
+	"myclothing/api/server/helpers/responder"
+	"myclothing/api/usecases/product"
 	"net/http"
 )
 
@@ -12,7 +12,7 @@ type productHttpHandler struct {
 	productUsecase product.Usecase
 }
 
-func NewProductHttpHandler(productUsecase product.Usecase) product2.ProductHandler {
+func NewProductHttpHandler(productUsecase product.Usecase) productHandler.Handler {
 	return &productHttpHandler{productUsecase: productUsecase}
 }
 

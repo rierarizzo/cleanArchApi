@@ -6,10 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	productDomain "myclothing/app/domain/product"
-	appError "myclothing/app/error"
-	productRepo "myclothing/app/persistence/product"
-	sqlc2 "myclothing/app/persistence/sqlc"
+	appError "myclothing/api/domain/error"
+	productDomain "myclothing/api/domain/product"
+	productRepo "myclothing/api/persistence/product"
+	sqlc2 "myclothing/api/persistence/sqlc"
 	"strconv"
 )
 
