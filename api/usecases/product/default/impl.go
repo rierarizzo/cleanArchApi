@@ -39,7 +39,7 @@ func (u *productUsecaseImpl) CreateProduct(product *productDomain.Product) error
 	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductCategory(productCategory *productDomain.ProductCategory) error {
+func (u *productUsecaseImpl) CreateProductCategory(productCategory *productDomain.Category) error {
 	err := u.productRepo.InsertProductCategory(productCategory)
 	if err != nil {
 		slog.Debug("Product category created with ID:", productCategory.Id)
@@ -49,7 +49,7 @@ func (u *productUsecaseImpl) CreateProductCategory(productCategory *productDomai
 	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductSubcategory(productSubcategory *productDomain.ProductSubcategory) error {
+func (u *productUsecaseImpl) CreateProductSubcategory(productSubcategory *productDomain.Subcategory) error {
 	err := u.productRepo.InsertProductSubcategory(productSubcategory)
 	if err != nil {
 		slog.Debug("Product subcategory created with ID:", productSubcategory.Id)
@@ -59,7 +59,7 @@ func (u *productUsecaseImpl) CreateProductSubcategory(productSubcategory *produc
 	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductSource(productSource *productDomain.ProductSource) error {
+func (u *productUsecaseImpl) CreateProductSource(productSource *productDomain.Source) error {
 	err := u.productRepo.InsertProductSource(productSource)
 	if err != nil {
 		slog.Debug("Product source created with ID:", productSource.Id)

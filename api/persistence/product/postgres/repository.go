@@ -56,14 +56,14 @@ func (r *productPostgresRepository) SelectProducts() ([]productDomain.Product, e
 	return products, nil
 }
 
-func (r *productPostgresRepository) SelectProductCategoryById(categoryId int32) (*productDomain.ProductCategory, error) {
+func (r *productPostgresRepository) SelectProductCategoryById(categoryId int32) (*productDomain.Category, error) {
 	row, err := r.productQueries.GetProductCategoryById(r.ctx, categoryId)
 	if err != nil {
 		slog.Error("SelectProductCategoryById:", err)
 		return nil, appError.ErrRepository
 	}
 
-	category := &productDomain.ProductCategory{
+	category := &productDomain.Category{
 		Id:          int(row.ID),
 		Name:        row.Name,
 		Description: row.Description,
@@ -72,7 +72,7 @@ func (r *productPostgresRepository) SelectProductCategoryById(categoryId int32) 
 	return category, nil
 }
 
-func (r *productPostgresRepository) SelectProductSubcategoryById(subcategoryId int32) (*productDomain.ProductSubcategory, error) {
+func (r *productPostgresRepository) SelectProductSubcategoryById(subcategoryId int32) (*productDomain.Subcategory, error) {
 	row, err := r.productQueries.GetProductSubcategoryById(r.ctx, subcategoryId)
 	if err != nil {
 		slog.Error("SelectProductSubcategoryById:", err)
@@ -84,7 +84,7 @@ func (r *productPostgresRepository) SelectProductSubcategoryById(subcategoryId i
 		return nil, err
 	}
 
-	subcategory := &productDomain.ProductSubcategory{
+	subcategory := &productDomain.Subcategory{
 		Id:             int(row.ID),
 		ParentCategory: category,
 		Name:           row.Name,
@@ -94,7 +94,7 @@ func (r *productPostgresRepository) SelectProductSubcategoryById(subcategoryId i
 	return subcategory, nil
 }
 
-func (r *productPostgresRepository) SelectProductSubcategoryByCategoryId(categoryId int32) ([]productDomain.ProductSubcategory, error) {
+func (r *productPostgresRepository) SelectProductSubcategoryByCategoryId(categoryId int32) ([]productDomain.Subcategory, error) {
 	rows, err := r.productQueries.GetProductSubcategoryByCategoryId(r.ctx, categoryId)
 	if err != nil {
 		slog.Error("SelectProductSubcategoryByCategoryId:", err)
@@ -106,9 +106,9 @@ func (r *productPostgresRepository) SelectProductSubcategoryByCategoryId(categor
 		return nil, err
 	}
 
-	subcategories := make([]productDomain.ProductSubcategory, 0)
+	subcategories := make([]productDomain.Subcategory, 0)
 	for _, row := range rows {
-		subcategory := &productDomain.ProductSubcategory{
+		subcategory := &productDomain.Subcategory{
 			Id:             int(row.ID),
 			ParentCategory: category,
 			Name:           row.Name,
@@ -120,14 +120,14 @@ func (r *productPostgresRepository) SelectProductSubcategoryByCategoryId(categor
 	return subcategories, nil
 }
 
-func (r *productPostgresRepository) SelectProductSizeByCode(sizeCode string) (*productDomain.ProductSize, error) {
+func (r *productPostgresRepository) SelectProductSizeByCode(sizeCode string) (*productDomain.Size, error) {
 	row, err := r.productQueries.GetProductSizeByCode(r.ctx, sizeCode)
 	if err != nil {
 		slog.Error("SelectProductSizeByCode:", err)
 		return nil, appError.ErrRepository
 	}
 
-	size := &productDomain.ProductSize{
+	size := &productDomain.Size{
 		Code:        row.Code,
 		Description: row.Description,
 	}
@@ -135,14 +135,14 @@ func (r *productPostgresRepository) SelectProductSizeByCode(sizeCode string) (*p
 	return size, nil
 }
 
-func (r *productPostgresRepository) SelectProductColorById(colorId int32) (*productDomain.ProductColor, error) {
+func (r *productPostgresRepository) SelectProductColorById(colorId int32) (*productDomain.Color, error) {
 	row, err := r.productQueries.GetProductColorById(r.ctx, colorId)
 	if err != nil {
 		slog.Error("SelectProductColorById:", err)
 		return nil, err
 	}
 
-	color := &productDomain.ProductColor{
+	color := &productDomain.Color{
 		Id:   int(row.ID),
 		Name: row.Name,
 		Hex:  row.Hex,
@@ -151,14 +151,14 @@ func (r *productPostgresRepository) SelectProductColorById(colorId int32) (*prod
 	return color, nil
 }
 
-func (r *productPostgresRepository) SelectProductSourceById(sourceId int32) (*productDomain.ProductSource, error) {
+func (r *productPostgresRepository) SelectProductSourceById(sourceId int32) (*productDomain.Source, error) {
 	row, err := r.productQueries.GetProductSourceById(r.ctx, sourceId)
 	if err != nil {
 		slog.Error("SelectProductSourceById:", err)
 		return nil, err
 	}
 
-	source := &productDomain.ProductSource{
+	source := &productDomain.Source{
 		Id:   int(row.ID),
 		Name: row.Name,
 	}
@@ -213,7 +213,7 @@ func (r *productPostgresRepository) InsertProduct(product *productDomain.Product
 	return nil
 }
 
-func (r *productPostgresRepository) InsertProductCategory(productCategory *productDomain.ProductCategory) error {
+func (r *productPostgresRepository) InsertProductCategory(productCategory *productDomain.Category) error {
 	row, err := r.productQueries.CreateProductCategory(r.ctx, sqlc2.CreateProductCategoryParams{
 		Name:        productCategory.Name,
 		Description: productCategory.Description,
@@ -228,7 +228,7 @@ func (r *productPostgresRepository) InsertProductCategory(productCategory *produ
 	return nil
 }
 
-func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory *productDomain.ProductSubcategory) error {
+func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory *productDomain.Subcategory) error {
 	row, err := r.productQueries.CreateProductSubcategory(r.ctx, sqlc2.CreateProductSubcategoryParams{
 		ParentCategoryID: int32(productSubcategory.ParentCategory.Id),
 		Name:             productSubcategory.Name,
@@ -244,7 +244,7 @@ func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory 
 	return nil
 }
 
-func (r *productPostgresRepository) InsertProductSource(productSource *productDomain.ProductSource) error {
+func (r *productPostgresRepository) InsertProductSource(productSource *productDomain.Source) error {
 	row, err := r.productQueries.CreateProductSource(r.ctx, productSource.Name)
 	if err != nil {
 		slog.Error("InsertProductSource:", err)
@@ -273,12 +273,12 @@ func (r *productPostgresRepository) rowToUser(row sqlc2.ProductView) (*productDo
 
 	return &productDomain.Product{
 		Id: int(row.ProductID),
-		Category: productDomain.ProductCategory{
+		Category: productDomain.Category{
 			Id:          int(row.CategoryID),
 			Name:        row.CategoryName,
 			Description: row.CategoryDescription,
 		},
-		Subcategory: productDomain.ProductSubcategory{
+		Subcategory: productDomain.Subcategory{
 			Id:          int(row.SubcategoryID),
 			Name:        row.SubcategoryName,
 			Description: row.SubcategoryDescription,
@@ -288,11 +288,11 @@ func (r *productPostgresRepository) rowToUser(row sqlc2.ProductView) (*productDo
 		Price:       price,
 		Cost:        cost,
 		Quantity:    int(row.ProductQuantity),
-		Size: productDomain.ProductSize{
+		Size: productDomain.Size{
 			Code:        row.SizeCode,
 			Description: row.SizeDescription,
 		},
-		Color: productDomain.ProductColor{
+		Color: productDomain.Color{
 			Id:   int(row.ColorID),
 			Name: row.ColorName,
 			Hex:  row.ColorHex,
@@ -301,7 +301,7 @@ func (r *productPostgresRepository) rowToUser(row sqlc2.ProductView) (*productDo
 		Sku:      row.ProductSku,
 		Upc:      row.ProductUpc,
 		ImageUrl: row.ProductImageUrl,
-		Source: productDomain.ProductSource{
+		Source: productDomain.Source{
 			Id:   int(row.SourceID),
 			Name: row.SourceName,
 		},

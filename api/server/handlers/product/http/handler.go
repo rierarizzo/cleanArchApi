@@ -2,17 +2,19 @@ package http
 
 import (
 	"github.com/labstack/echo/v4"
+	errorDomain "myclothing/api/domain/error"
+	productDomain "myclothing/api/domain/product"
 	productHandler "myclothing/api/server/handlers/product"
 	"myclothing/api/server/helpers/responder"
-	"myclothing/api/usecases/product"
+	productUsecase "myclothing/api/usecases/product"
 	"net/http"
 )
 
 type productHttpHandler struct {
-	productUsecase product.Usecase
+	productUsecase productUsecase.Usecase
 }
 
-func NewProductHttpHandler(productUsecase product.Usecase) productHandler.Handler {
+func NewProductHttpHandler(productUsecase productUsecase.Usecase) productHandler.Handler {
 	return &productHttpHandler{productUsecase: productUsecase}
 }
 
@@ -23,4 +25,13 @@ func (h *productHttpHandler) GetProducts(c echo.Context) error {
 	}
 
 	return responder.Ok(c, http.StatusOK, products)
+}
+
+func (h *productHttpHandler) CreateProduct(c echo.Context) error {
+	var product productDomain.Product
+	if err := c.Bind(&product); err != nil {
+		return responder.Error(c, http.StatusBadRequest, errorDomain.ErrBadRequest)
+	}
+
+	return responder.Ok(c, http.StatusOK, product)
 }
