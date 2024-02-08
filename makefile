@@ -1,4 +1,4 @@
-migration_path := database/postgres/migrations
+migration_path := migrations
 
 # Golang
 run_dev:
