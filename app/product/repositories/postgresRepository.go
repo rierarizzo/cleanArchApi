@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	appError "myclothing/app/error"
 	"myclothing/app/product/entities"
-	"myclothing/database/postgres/sqlc"
+	"myclothing/app/sqlc"
 	"strconv"
 	"time"
 )

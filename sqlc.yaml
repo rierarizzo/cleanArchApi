@@ -1,10 +1,10 @@
 version: 2
 sql:
   - engine: "postgresql"
-    schema: "database/postgres/migrations/"
-    queries: "database/postgres/queries/"
+    schema: "migrations/"
+    queries: "app/sqlc/queries/"
     gen:
       go:
         package: "sqlc"
-        out: "database/postgres/sqlc"
+        out: "app/sqlc"
         sql_package: "lib/pq"
