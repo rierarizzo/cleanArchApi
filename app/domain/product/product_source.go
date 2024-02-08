@@ -1,4 +1,4 @@
-package entities
+package product
 
 type ProductSource struct {
 	Id   int    `json:"id,omitempty"`

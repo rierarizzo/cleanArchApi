@@ -1,22 +1,23 @@
-package usecases
+package _default
 
 import (
 	"fmt"
 	"log/slog"
-	"myclothing/app/product/entities"
-	"myclothing/app/product/repositories"
+	productDomain "myclothing/app/domain/product"
+	productRepo "myclothing/app/persistence/product"
+	productUsecase "myclothing/app/usecases/product"
 	"time"
 )
 
 type productUsecaseImpl struct {
-	productRepo repositories.ProductRepository
+	productRepo productRepo.Repository
 }
 
-func NewProductUsecaseImpl(productRepo repositories.ProductRepository) ProductUsecase {
+func NewProductUsecaseImpl(productRepo productRepo.Repository) productUsecase.Usecase {
 	return &productUsecaseImpl{productRepo: productRepo}
 }
 
-func (u *productUsecaseImpl) GetProducts() ([]entities.Product, error) {
+func (u *productUsecaseImpl) GetProducts() ([]productDomain.Product, error) {
 	products, err := u.productRepo.SelectProducts()
 	if err != nil {
 		slog.Debug(fmt.Sprintf("%v products returned", len(products)))
@@ -26,7 +27,7 @@ func (u *productUsecaseImpl) GetProducts() ([]entities.Product, error) {
 	return products, nil
 }
 
-func (u *productUsecaseImpl) CreateProduct(product *entities.Product) error {
+func (u *productUsecaseImpl) CreateProduct(product *productDomain.Product) error {
 	u.GenerateSku(product)
 
 	err := u.productRepo.InsertProduct(product)
@@ -38,7 +39,7 @@ func (u *productUsecaseImpl) CreateProduct(product *entities.Product) error {
 	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductCategory(productCategory *entities.ProductCategory) error {
+func (u *productUsecaseImpl) CreateProductCategory(productCategory *productDomain.ProductCategory) error {
 	err := u.productRepo.InsertProductCategory(productCategory)
 	if err != nil {
 		slog.Debug("Product category created with ID:", productCategory.Id)
@@ -48,7 +49,7 @@ func (u *productUsecaseImpl) CreateProductCategory(productCategory *entities.Pro
 	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductSubcategory(productSubcategory *entities.ProductSubcategory) error {
+func (u *productUsecaseImpl) CreateProductSubcategory(productSubcategory *productDomain.ProductSubcategory) error {
 	err := u.productRepo.InsertProductSubcategory(productSubcategory)
 	if err != nil {
 		slog.Debug("Product subcategory created with ID:", productSubcategory.Id)
@@ -58,7 +59,7 @@ func (u *productUsecaseImpl) CreateProductSubcategory(productSubcategory *entiti
 	return nil
 }
 
-func (u *productUsecaseImpl) CreateProductSource(productSource *entities.ProductSource) error {
+func (u *productUsecaseImpl) CreateProductSource(productSource *productDomain.ProductSource) error {
 	err := u.productRepo.InsertProductSource(productSource)
 	if err != nil {
 		slog.Debug("Product source created with ID:", productSource.Id)
@@ -68,7 +69,7 @@ func (u *productUsecaseImpl) CreateProductSource(productSource *entities.Product
 	return nil
 }
 
-func (u *productUsecaseImpl) GenerateSku(product *entities.Product) {
+func (u *productUsecaseImpl) GenerateSku(product *productDomain.Product) {
 	timestamp := time.Now().Unix() % 10000
 	id := product.Id % 1000000
 

@@ -1,4 +1,4 @@
-package entities
+package product
 
 type ProductSubcategory struct {
 	Id             int              `json:"id,omitempty"`

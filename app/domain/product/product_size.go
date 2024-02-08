@@ -1,4 +1,4 @@
-package entities
+package product
 
 type ProductSize struct {
 	Code        string `json:"code,omitempty"`

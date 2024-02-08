@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	productHandler "myclothing/app/product/handlers"
-	productRepositories "myclothing/app/product/repositories"
-	productUsecases "myclothing/app/product/usecases"
+	productHandler "myclothing/app/handlers/product/http"
+	echo2 "myclothing/app/middlewares/echo"
+	productRepositories "myclothing/app/persistence/product/postgres"
+	productUsecases "myclothing/app/usecases/product/default"
 	"myclothing/config"
-	"myclothing/server/echo/middlewares"
 )
 
 type echoServer struct {
@@ -26,7 +26,7 @@ func NewEchoServer(cfg *config.App, db *sql.DB) Server {
 }
 
 func (s *echoServer) Start() {
-	s.app.HTTPErrorHandler = middlewares.CustomHTTPErrorHandler
+	s.app.HTTPErrorHandler = echo2.CustomHTTPErrorHandler
 
 	s.initializeProductHttpHandler()
 
