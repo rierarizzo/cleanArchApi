@@ -185,7 +185,7 @@ func (r *productPostgresRepository) InsertProduct(product *productDomain.Product
 		offerPercent.Valid = true
 	}
 
-	row, err := r.productQueries.CreateProduct(r.ctx, sqlc2.CreateProductParams{
+	productId, err := r.productQueries.CreateProduct(r.ctx, sqlc2.CreateProductParams{
 		SubcategoryID: int32(product.Subcategory.Id),
 		Name:          product.Name,
 		Description:   description,
@@ -208,13 +208,13 @@ func (r *productPostgresRepository) InsertProduct(product *productDomain.Product
 		return err
 	}
 
-	product.Id = int(row.ID)
+	product.Id = int(productId)
 
 	return nil
 }
 
 func (r *productPostgresRepository) InsertProductCategory(productCategory *productDomain.Category) error {
-	row, err := r.productQueries.CreateProductCategory(r.ctx, sqlc2.CreateProductCategoryParams{
+	categoryId, err := r.productQueries.CreateProductCategory(r.ctx, sqlc2.CreateProductCategoryParams{
 		Name:        productCategory.Name,
 		Description: productCategory.Description,
 	})
@@ -223,13 +223,13 @@ func (r *productPostgresRepository) InsertProductCategory(productCategory *produ
 		return err
 	}
 
-	productCategory.Id = int(row.ID)
+	productCategory.Id = int(categoryId)
 
 	return nil
 }
 
 func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory *productDomain.Subcategory) error {
-	row, err := r.productQueries.CreateProductSubcategory(r.ctx, sqlc2.CreateProductSubcategoryParams{
+	subcategoryId, err := r.productQueries.CreateProductSubcategory(r.ctx, sqlc2.CreateProductSubcategoryParams{
 		ParentCategoryID: int32(productSubcategory.ParentCategory.Id),
 		Name:             productSubcategory.Name,
 		Description:      productSubcategory.Description,
@@ -239,19 +239,19 @@ func (r *productPostgresRepository) InsertProductSubcategory(productSubcategory 
 		return err
 	}
 
-	productSubcategory.Id = int(row.ID)
+	productSubcategory.Id = int(subcategoryId)
 
 	return nil
 }
 
 func (r *productPostgresRepository) InsertProductSource(productSource *productDomain.Source) error {
-	row, err := r.productQueries.CreateProductSource(r.ctx, productSource.Name)
+	sourceId, err := r.productQueries.CreateProductSource(r.ctx, productSource.Name)
 	if err != nil {
 		slog.Error("InsertProductSource:", err)
 		return err
 	}
 
-	productSource.Id = int(row.ID)
+	productSource.Id = int(sourceId)
 
 	return nil
 }

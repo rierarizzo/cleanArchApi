@@ -17,7 +17,7 @@ insert
 		  source_id, source_url, is_offered, offer_percent )
 	values
 		( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16 )
-	returning id, subcategory_id, name, description, price, cost, quantity, size_code, color_id, brand, sku, upc, image_url, source_id, source_url, is_offered, offer_percent, is_active, created_at, updated_at
+	returning id
 `
 
 type CreateProductParams struct {
@@ -39,7 +39,7 @@ type CreateProductParams struct {
 	OfferPercent  sql.NullInt32
 }
 
-func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
+func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (int32, error) {
 	row := q.db.QueryRowContext(ctx, createProduct,
 		arg.SubcategoryID,
 		arg.Name,
@@ -58,30 +58,9 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.IsOffered,
 		arg.OfferPercent,
 	)
-	var i Product
-	err := row.Scan(
-		&i.ID,
-		&i.SubcategoryID,
-		&i.Name,
-		&i.Description,
-		&i.Price,
-		&i.Cost,
-		&i.Quantity,
-		&i.SizeCode,
-		&i.ColorID,
-		&i.Brand,
-		&i.Sku,
-		&i.Upc,
-		&i.ImageUrl,
-		&i.SourceID,
-		&i.SourceUrl,
-		&i.IsOffered,
-		&i.OfferPercent,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	var id int32
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createProductCategory = `-- name: CreateProductCategory :one
@@ -90,7 +69,7 @@ insert
 		( name, description )
 	values
 		( $1, $2 )
-	returning id, name, description
+	returning id
 `
 
 type CreateProductCategoryParams struct {
@@ -98,11 +77,11 @@ type CreateProductCategoryParams struct {
 	Description string
 }
 
-func (q *Queries) CreateProductCategory(ctx context.Context, arg CreateProductCategoryParams) (ProductCategory, error) {
+func (q *Queries) CreateProductCategory(ctx context.Context, arg CreateProductCategoryParams) (int32, error) {
 	row := q.db.QueryRowContext(ctx, createProductCategory, arg.Name, arg.Description)
-	var i ProductCategory
-	err := row.Scan(&i.ID, &i.Name, &i.Description)
-	return i, err
+	var id int32
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createProductSource = `-- name: CreateProductSource :one
@@ -111,14 +90,14 @@ insert
 		( name )
 	values
 		( $1 )
-	returning id, name
+	returning id
 `
 
-func (q *Queries) CreateProductSource(ctx context.Context, name string) (ProductSource, error) {
+func (q *Queries) CreateProductSource(ctx context.Context, name string) (int32, error) {
 	row := q.db.QueryRowContext(ctx, createProductSource, name)
-	var i ProductSource
-	err := row.Scan(&i.ID, &i.Name)
-	return i, err
+	var id int32
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createProductSubcategory = `-- name: CreateProductSubcategory :one
@@ -127,7 +106,7 @@ insert
 		( parent_category_id, name, description )
 	values
 		( $1, $2, $3 )
-	returning id, parent_category_id, name, description
+	returning id
 `
 
 type CreateProductSubcategoryParams struct {
@@ -136,16 +115,11 @@ type CreateProductSubcategoryParams struct {
 	Description      string
 }
 
-func (q *Queries) CreateProductSubcategory(ctx context.Context, arg CreateProductSubcategoryParams) (ProductSubcategory, error) {
+func (q *Queries) CreateProductSubcategory(ctx context.Context, arg CreateProductSubcategoryParams) (int32, error) {
 	row := q.db.QueryRowContext(ctx, createProductSubcategory, arg.ParentCategoryID, arg.Name, arg.Description)
-	var i ProductSubcategory
-	err := row.Scan(
-		&i.ID,
-		&i.ParentCategoryID,
-		&i.Name,
-		&i.Description,
-	)
-	return i, err
+	var id int32
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getProductById = `-- name: GetProductById :one

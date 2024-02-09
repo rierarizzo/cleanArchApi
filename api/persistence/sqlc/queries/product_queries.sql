@@ -48,7 +48,7 @@ insert
 		( name, description )
 	values
 		( $1, $2 )
-	returning *;
+	returning id;
 
 -- name: CreateProductSubcategory :one
 insert
@@ -56,7 +56,7 @@ insert
 		( parent_category_id, name, description )
 	values
 		( $1, $2, $3 )
-	returning *;
+	returning id;
 
 -- name: CreateProductSource :one
 insert
@@ -64,7 +64,7 @@ insert
 		( name )
 	values
 		( $1 )
-	returning *;
+	returning id;
 
 -- name: CreateProduct :one
 insert
@@ -73,4 +73,4 @@ insert
 		  source_id, source_url, is_offered, offer_percent )
 	values
 		( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16 )
-	returning *;
+	returning id;
