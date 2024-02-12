@@ -9,16 +9,10 @@ import (
 	"net/http"
 )
 
-type productHttpHandler struct {
-	productUsecase productUsecase.Usecase
-}
+var Usecase productUsecase.Usecase
 
-func NewProductHttpHandler(productUsecase productUsecase.Usecase) Handler {
-	return &productHttpHandler{productUsecase: productUsecase}
-}
-
-func (h *productHttpHandler) GetProducts(w http.ResponseWriter, _ *http.Request) {
-	products, err := h.productUsecase.GetProducts()
+func GetProducts(w http.ResponseWriter, _ *http.Request) {
+	products, err := Usecase.GetProducts()
 	if err != nil {
 		responder.ErrorJSON(w, err, http.StatusInternalServerError)
 	}
@@ -26,14 +20,14 @@ func (h *productHttpHandler) GetProducts(w http.ResponseWriter, _ *http.Request)
 	responder.WriteJSON(w, products, http.StatusOK)
 }
 
-func (h *productHttpHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
+func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product productDomain.Product
 
 	if err := decoder.Bind(w, r, &product); err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
 
-	err := h.productUsecase.CreateProduct(&product)
+	err := Usecase.CreateProduct(&product)
 	if err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
@@ -41,14 +35,14 @@ func (h *productHttpHandler) CreateProduct(w http.ResponseWriter, r *http.Reques
 	responder.WriteJSON(w, product, http.StatusOK)
 }
 
-func (h *productHttpHandler) CreateProductCategory(w http.ResponseWriter, r *http.Request) {
+func CreateProductCategory(w http.ResponseWriter, r *http.Request) {
 	var category productDomain.Category
 
 	if err := decoder.Bind(w, r, &category); err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
 
-	err := h.productUsecase.CreateProductCategory(&category)
+	err := Usecase.CreateProductCategory(&category)
 	if err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
@@ -56,14 +50,14 @@ func (h *productHttpHandler) CreateProductCategory(w http.ResponseWriter, r *htt
 	responder.WriteJSON(w, category, http.StatusOK)
 }
 
-func (h *productHttpHandler) CreateProductSubcategory(w http.ResponseWriter, r *http.Request) {
+func CreateProductSubcategory(w http.ResponseWriter, r *http.Request) {
 	var subcategory productDomain.Subcategory
 
 	if err := decoder.Bind(w, r, &subcategory); err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
 
-	err := h.productUsecase.CreateProductSubcategory(&subcategory)
+	err := Usecase.CreateProductSubcategory(&subcategory)
 	if err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
@@ -71,14 +65,14 @@ func (h *productHttpHandler) CreateProductSubcategory(w http.ResponseWriter, r *
 	responder.WriteJSON(w, subcategory, http.StatusOK)
 }
 
-func (h *productHttpHandler) CreateProductSource(w http.ResponseWriter, r *http.Request) {
+func CreateProductSource(w http.ResponseWriter, r *http.Request) {
 	var source productDomain.Source
 
 	if err := decoder.Bind(w, r, &source); err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
 
-	err := h.productUsecase.CreateProductSource(&source)
+	err := Usecase.CreateProductSource(&source)
 	if err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
