@@ -2,15 +2,11 @@ package middlewares
 
 import (
 	"errors"
-	"fmt"
-	"github.com/labstack/echo/v4"
-	"log/slog"
 	appError "myclothing/api/domain/error"
-	"myclothing/api/server/helpers/responder"
 	"net/http"
 )
 
-func CustomHTTPErrorHandler(err error, c echo.Context) {
+/*func CustomHTTPErrorHandler(err error, c echo.Context) {
 	code := getHttpCodeStatusFromAppError(err)
 
 	responderErr := responder.Error(c, code, err)
@@ -18,7 +14,7 @@ func CustomHTTPErrorHandler(err error, c echo.Context) {
 	if responderErr != nil {
 		slog.Error(fmt.Sprintf("middlewares.customHTTPErrorHandler: %v", responderErr))
 	}
-}
+}*/
 
 func getHttpCodeStatusFromAppError(err error) int {
 	switch {
