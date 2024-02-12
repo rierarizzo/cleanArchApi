@@ -44,4 +44,7 @@ func (s *echoServer) initializeProductHttpHandler() {
 	productRouters := s.app.Group("v1/product")
 	productRouters.GET("", productHttpHandler.GetProducts)
 	productRouters.POST("", productHttpHandler.CreateProduct)
+	productRouters.POST("category", productHttpHandler.CreateProductCategory)
+	productRouters.POST("subcategory", productHttpHandler.CreateProductSubcategory)
+	productRouters.POST("source", productHttpHandler.CreateProductSource)
 }
