@@ -20,62 +20,35 @@ func GetProducts(w http.ResponseWriter, _ *http.Request) {
 	responder.WriteJSON(w, products, http.StatusOK)
 }
 
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
-	var product productDomain.Product
-
-	if err := decoder.Bind(w, r, &product); err != nil {
+func createProductElement[T any](w http.ResponseWriter, r *http.Request, element T, usecaseFunc func(element *T) error) {
+	if err := decoder.Bind(w, r, &element); err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
 
-	err := Usecase.CreateProduct(&product)
+	err := usecaseFunc(&element)
 	if err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
 	}
 
-	responder.WriteJSON(w, product, http.StatusOK)
+	responder.WriteJSON(w, element, http.StatusOK)
+}
+
+func CreateProduct(w http.ResponseWriter, r *http.Request) {
+	var product productDomain.Product
+	createProductElement(w, r, product, Usecase.CreateProduct)
 }
 
 func CreateProductCategory(w http.ResponseWriter, r *http.Request) {
 	var category productDomain.Category
-
-	if err := decoder.Bind(w, r, &category); err != nil {
-		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
-	}
-
-	err := Usecase.CreateProductCategory(&category)
-	if err != nil {
-		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
-	}
-
-	responder.WriteJSON(w, category, http.StatusOK)
+	createProductElement(w, r, category, Usecase.CreateProductCategory)
 }
 
 func CreateProductSubcategory(w http.ResponseWriter, r *http.Request) {
 	var subcategory productDomain.Subcategory
-
-	if err := decoder.Bind(w, r, &subcategory); err != nil {
-		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
-	}
-
-	err := Usecase.CreateProductSubcategory(&subcategory)
-	if err != nil {
-		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
-	}
-
-	responder.WriteJSON(w, subcategory, http.StatusOK)
+	createProductElement(w, r, subcategory, Usecase.CreateProductSubcategory)
 }
 
 func CreateProductSource(w http.ResponseWriter, r *http.Request) {
 	var source productDomain.Source
-
-	if err := decoder.Bind(w, r, &source); err != nil {
-		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
-	}
-
-	err := Usecase.CreateProductSource(&source)
-	if err != nil {
-		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
-	}
-
-	responder.WriteJSON(w, source, http.StatusOK)
+	createProductElement(w, r, source, Usecase.CreateProductSource)
 }
