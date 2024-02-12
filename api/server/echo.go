@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	productRepositories "myclothing/api/persistence/product/postgres"
-	productHandler "myclothing/api/server/handlers/product/http"
+	productHandler "myclothing/api/server/handlers/product"
 	productUsecases "myclothing/api/usecases/product/default"
 	"myclothing/config"
 	"net/http"

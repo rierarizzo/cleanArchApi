@@ -2,8 +2,7 @@ package responder
 
 import (
 	"encoding/json"
-	"errors"
-	"io"
+	"log/slog"
 	"net/http"
 )
 
@@ -14,24 +13,7 @@ type genericResponse struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-func Bind(w http.ResponseWriter, r *http.Request, data any) error {
-	maxBytes := 1048576 // one megabyte
-
-	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
-
-	dec := json.NewDecoder(r.Body)
-	if err := dec.Decode(data); err != nil {
-		return err
-	}
-
-	if err := dec.Decode(&struct{}{}); err != io.EOF {
-		return errors.New("body must have only a single JSON value")
-	}
-
-	return nil
-}
-
-func WriteJSON(w http.ResponseWriter, data any, status int, headers ...http.Header) error {
+func WriteJSON(w http.ResponseWriter, data any, status int, headers ...http.Header) {
 	response := genericResponse{
 		Error:  false,
 		Status: status,
@@ -40,7 +22,7 @@ func WriteJSON(w http.ResponseWriter, data any, status int, headers ...http.Head
 
 	out, err := json.Marshal(response)
 	if err != nil {
-		return err
+		slog.Error("Error in Marshal:", err)
 	}
 
 	if len(headers) > 0 {
@@ -53,13 +35,11 @@ func WriteJSON(w http.ResponseWriter, data any, status int, headers ...http.Head
 	w.WriteHeader(status)
 	_, err = w.Write(out)
 	if err != nil {
-		return err
+		slog.Error("Error in Write:", err)
 	}
-
-	return nil
 }
 
-func ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
+func ErrorJSON(w http.ResponseWriter, err error, status ...int) {
 	statusCode := http.StatusBadRequest
 
 	if len(status) > 0 {
@@ -72,5 +52,5 @@ func ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
 		Message: err.Error(),
 	}
 
-	return WriteJSON(w, response, statusCode)
+	WriteJSON(w, response, statusCode)
 }
