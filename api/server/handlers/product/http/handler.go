@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/labstack/echo/v4"
+	"log/slog"
 	errorDomain "myclothing/api/domain/error"
 	productDomain "myclothing/api/domain/product"
 	productHandler "myclothing/api/server/handlers/product"
@@ -18,67 +18,95 @@ func NewProductHttpHandler(productUsecase productUsecase.Usecase) productHandler
 	return &productHttpHandler{productUsecase: productUsecase}
 }
 
-func (h *productHttpHandler) GetProducts(c echo.Context) error {
+func (h *productHttpHandler) GetProducts(w http.ResponseWriter, _ *http.Request) {
 	products, err := h.productUsecase.GetProducts()
 	if err != nil {
-		return err
+		if err = responder.ErrorJSON(w, err, http.StatusInternalServerError); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
-	return responder.Ok(c, http.StatusOK, products)
+	if err = responder.WriteJSON(w, products, http.StatusOK); err != nil {
+		slog.Error("Error while writing JSON:", err)
+	}
 }
 
-func (h *productHttpHandler) CreateProduct(c echo.Context) error {
+func (h *productHttpHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product productDomain.Product
-	if err := c.Bind(&product); err != nil {
-		return responder.Error(c, http.StatusBadRequest, errorDomain.ErrBadRequest)
+	if err := responder.Bind(w, r, &product); err != nil {
+		if err = responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
 	err := h.productUsecase.CreateProduct(&product)
 	if err != nil {
-		return responder.Error(c, http.StatusInternalServerError, err)
+		if err = responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
-	return responder.Ok(c, http.StatusCreated, product)
+	if err = responder.WriteJSON(w, product, http.StatusOK); err != nil {
+		slog.Error("Error while writing JSON:", err)
+	}
 }
 
-func (h *productHttpHandler) CreateProductCategory(c echo.Context) error {
+func (h *productHttpHandler) CreateProductCategory(w http.ResponseWriter, r *http.Request) {
 	var category productDomain.Category
-	if err := c.Bind(&category); err != nil {
-		return responder.Error(c, http.StatusBadRequest, errorDomain.ErrBadRequest)
+	if err := responder.Bind(w, r, &category); err != nil {
+		if err = responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
 	err := h.productUsecase.CreateProductCategory(&category)
 	if err != nil {
-		return responder.Error(c, http.StatusInternalServerError, err)
+		if err = responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
-	return responder.Ok(c, http.StatusCreated, category)
+	if err = responder.WriteJSON(w, category, http.StatusOK); err != nil {
+		slog.Error("Error while writing JSON:", err)
+	}
 }
 
-func (h *productHttpHandler) CreateProductSubcategory(c echo.Context) error {
+func (h *productHttpHandler) CreateProductSubcategory(w http.ResponseWriter, r *http.Request) {
 	var subcategory productDomain.Subcategory
-	if err := c.Bind(&subcategory); err != nil {
-		return responder.Error(c, http.StatusBadRequest, errorDomain.ErrBadRequest)
+	if err := responder.Bind(w, r, &subcategory); err != nil {
+		if err = responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
 	err := h.productUsecase.CreateProductSubcategory(&subcategory)
 	if err != nil {
-		return responder.Error(c, http.StatusInternalServerError, err)
+		if err = responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
-	return responder.Ok(c, http.StatusCreated, subcategory)
+	if err = responder.WriteJSON(w, subcategory, http.StatusOK); err != nil {
+		slog.Error("Error while writing JSON:", err)
+	}
 }
 
-func (h *productHttpHandler) CreateProductSource(c echo.Context) error {
+func (h *productHttpHandler) CreateProductSource(w http.ResponseWriter, r *http.Request) {
 	var source productDomain.Source
-	if err := c.Bind(&source); err != nil {
-		return responder.Error(c, http.StatusBadRequest, errorDomain.ErrBadRequest)
+	if err := responder.Bind(w, r, &source); err != nil {
+		if err = responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
 	err := h.productUsecase.CreateProductSource(&source)
 	if err != nil {
-		return responder.Error(c, http.StatusInternalServerError, err)
+		if err = responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest); err != nil {
+			slog.Error("Error while writing error JSON:", err)
+		}
 	}
 
-	return responder.Ok(c, http.StatusCreated, source)
+	if err = responder.WriteJSON(w, source, http.StatusOK); err != nil {
+		slog.Error("Error while writing JSON:", err)
+	}
 }

@@ -1,11 +1,13 @@
 package product
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+)
 
 type Handler interface {
-	GetProducts(c echo.Context) error
-	CreateProduct(c echo.Context) error
-	CreateProductCategory(c echo.Context) error
-	CreateProductSubcategory(c echo.Context) error
-	CreateProductSource(c echo.Context) error
+	GetProducts(w http.ResponseWriter, r *http.Request)
+	CreateProduct(w http.ResponseWriter, r *http.Request)
+	CreateProductCategory(w http.ResponseWriter, r *http.Request)
+	CreateProductSubcategory(w http.ResponseWriter, r *http.Request)
+	CreateProductSource(w http.ResponseWriter, r *http.Request)
 }
