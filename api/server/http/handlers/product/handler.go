@@ -3,8 +3,8 @@ package product
 import (
 	errorDomain "myclothing/api/domain/error"
 	productDomain "myclothing/api/domain/product"
-	"myclothing/api/server/helpers/decoder"
-	"myclothing/api/server/helpers/responder"
+	"myclothing/api/server/http/helpers/decoder"
+	"myclothing/api/server/http/helpers/responder"
 	productUsecase "myclothing/api/usecases/product"
 	"net/http"
 )

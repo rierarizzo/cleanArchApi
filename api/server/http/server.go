@@ -1,10 +1,10 @@
-package server
+package http
 
 import (
 	"database/sql"
 	"fmt"
 	productRepositories "myclothing/api/persistence/product"
-	productHandler "myclothing/api/server/handlers/product"
+	productHandler "myclothing/api/server/http/handlers/product"
 	productUsecases "myclothing/api/usecases/product"
 	"myclothing/config"
 	"net/http"
