@@ -9,10 +9,16 @@ import (
 	"net/http"
 )
 
-var Usecase productUsecase.Usecase
+type productHttpHandler struct {
+	usecase productUsecase.Usecase
+}
 
-func GetProducts(w http.ResponseWriter, _ *http.Request) {
-	products, err := Usecase.GetProducts()
+func NewProductHttpHandler(usecase productUsecase.Usecase) Handler {
+	return &productHttpHandler{usecase}
+}
+
+func (h *productHttpHandler) GetProducts(w http.ResponseWriter, _ *http.Request) {
+	products, err := h.usecase.GetProducts()
 	if err != nil {
 		responder.ErrorJSON(w, err, http.StatusInternalServerError)
 	}
@@ -33,22 +39,22 @@ func createProductElement[T any](w http.ResponseWriter, r *http.Request, element
 	responder.WriteJSON(w, element, http.StatusOK)
 }
 
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
+func (h *productHttpHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product productDomain.Product
-	createProductElement(w, r, product, Usecase.CreateProduct)
+	createProductElement(w, r, product, h.usecase.CreateProduct)
 }
 
-func CreateProductCategory(w http.ResponseWriter, r *http.Request) {
+func (h *productHttpHandler) CreateProductCategory(w http.ResponseWriter, r *http.Request) {
 	var category productDomain.Category
-	createProductElement(w, r, category, Usecase.CreateProductCategory)
+	createProductElement(w, r, category, h.usecase.CreateProductCategory)
 }
 
-func CreateProductSubcategory(w http.ResponseWriter, r *http.Request) {
+func (h *productHttpHandler) CreateProductSubcategory(w http.ResponseWriter, r *http.Request) {
 	var subcategory productDomain.Subcategory
-	createProductElement(w, r, subcategory, Usecase.CreateProductSubcategory)
+	createProductElement(w, r, subcategory, h.usecase.CreateProductSubcategory)
 }
 
-func CreateProductSource(w http.ResponseWriter, r *http.Request) {
+func (h *productHttpHandler) CreateProductSource(w http.ResponseWriter, r *http.Request) {
 	var source productDomain.Source
-	createProductElement(w, r, source, Usecase.CreateProductSource)
+	createProductElement(w, r, source, h.usecase.CreateProductSource)
 }

@@ -39,13 +39,12 @@ func (s *echoServer) Start() {
 func (s *echoServer) initializeProductHttpHandler() {
 	productPostgresRepo := productRepositories.NewProductPostgresRepository(s.db)
 	productUsecase := productUsecases.NewProductUsecaseImpl(productPostgresRepo)
-
-	productHandler.Usecase = productUsecase
+	productHttpHandler := productHandler.NewProductHttpHandler(productUsecase)
 
 	// Routers
-	s.mux.HandleFunc("/v1/product", productHandler.GetProducts)
-	s.mux.HandleFunc("POST /v1/product", productHandler.CreateProduct)
-	s.mux.HandleFunc("POST /v1/product/category", productHandler.CreateProductCategory)
-	s.mux.HandleFunc("POST /v1/product/subcategory", productHandler.CreateProductSubcategory)
-	s.mux.HandleFunc("POST /v1/product/source", productHandler.CreateProductSource)
+	s.mux.HandleFunc("/v1/product", productHttpHandler.GetProducts)
+	s.mux.HandleFunc("POST /v1/product", productHttpHandler.CreateProduct)
+	s.mux.HandleFunc("POST /v1/product/category", productHttpHandler.CreateProductCategory)
+	s.mux.HandleFunc("POST /v1/product/subcategory", productHttpHandler.CreateProductSubcategory)
+	s.mux.HandleFunc("POST /v1/product/source", productHttpHandler.CreateProductSource)
 }
