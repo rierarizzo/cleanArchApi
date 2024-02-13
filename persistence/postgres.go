@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type Database interface {
+	GetDb() *sql.DB
+}
+
 type postgresDatabase struct {
 	Db *sql.DB
 }
