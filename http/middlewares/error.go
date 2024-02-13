@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"errors"
-	appError "myclothing/domain/error"
+	appError "myclothing/error"
 	"net/http"
 )
 

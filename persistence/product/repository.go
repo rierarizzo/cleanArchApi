@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	appError "myclothing/domain/error"
-	productDomain "myclothing/domain/product"
+	productDomain "myclothing/entities/product"
+	appError "myclothing/error"
 	"myclothing/persistence/sqlc"
 	"strconv"
 )

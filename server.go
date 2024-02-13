@@ -1,11 +1,11 @@
-package server
+package main
 
 import (
 	"database/sql"
 	"fmt"
 	"myclothing/config"
+	productHandler "myclothing/http/handlers/product"
 	productRepositories "myclothing/persistence/product"
-	productHandler "myclothing/server/handlers/product"
 	productUsecases "myclothing/usecases/product"
 	"net/http"
 )

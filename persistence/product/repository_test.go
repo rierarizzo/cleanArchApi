@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/magiconair/properties/assert"
-	productDomain "myclothing/domain/product"
+	productDomain "myclothing/entities/product"
 	"testing"
 )
 

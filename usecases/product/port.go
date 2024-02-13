@@ -1,7 +1,7 @@
 package product
 
 import (
-	"myclothing/domain/product"
+	"myclothing/entities/product"
 )
 
 type Usecase interface {

@@ -1,10 +1,10 @@
 package product
 
 import (
-	errorDomain "myclothing/domain/error"
-	productDomain "myclothing/domain/product"
-	"myclothing/server/helpers/decoder"
-	"myclothing/server/helpers/responder"
+	productDomain "myclothing/entities/product"
+	errorDomain "myclothing/error"
+	"myclothing/http/helpers/decoder"
+	"myclothing/http/helpers/responder"
 	productUsecase "myclothing/usecases/product"
 	"net/http"
 )

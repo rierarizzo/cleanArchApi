@@ -1,7 +1,7 @@
 package order
 
 import (
-	"myclothing/domain/product"
+	"myclothing/entities/product"
 	"time"
 )
 

@@ -3,7 +3,7 @@ package product
 import (
 	"fmt"
 	"log/slog"
-	productDomain "myclothing/domain/product"
+	productDomain "myclothing/entities/product"
 	productRepo "myclothing/persistence/product"
 	"time"
 )

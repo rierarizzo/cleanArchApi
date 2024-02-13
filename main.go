@@ -3,7 +3,6 @@ package main
 import (
 	"myclothing/config"
 	"myclothing/persistence"
-	"myclothing/server"
 )
 
 func main() {
@@ -12,5 +11,5 @@ func main() {
 
 	db := persistence.NewPostgresDatabase(&cfg.Db)
 
-	server.NewEchoServer(&cfg.App, db.GetDb()).Start()
+	NewEchoServer(&cfg.App, db.GetDb()).Start()
 }
