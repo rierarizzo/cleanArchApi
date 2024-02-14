@@ -2,7 +2,9 @@ package responder
 
 import (
 	"encoding/json"
+	"errors"
 	"log/slog"
+	appError "myclothing/domain/error"
 	"net/http"
 )
 
@@ -44,6 +46,8 @@ func ErrorJSON(w http.ResponseWriter, err error, status ...int) {
 
 	if len(status) > 0 {
 		statusCode = status[0]
+	} else {
+		statusCode = getHttpCodeStatusFromAppError(err)
 	}
 
 	response := genericResponse{
@@ -53,4 +57,15 @@ func ErrorJSON(w http.ResponseWriter, err error, status ...int) {
 	}
 
 	WriteJSON(w, response, statusCode)
+}
+
+func getHttpCodeStatusFromAppError(err error) int {
+	switch {
+	case errors.Is(err, appError.ErrNotFound):
+		return http.StatusNotFound
+	case errors.Is(err, appError.ErrUnknown):
+		return http.StatusInternalServerError
+	default:
+		return http.StatusInternalServerError
+	}
 }

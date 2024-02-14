@@ -20,7 +20,7 @@ func NewProductHttpHandler(usecase productUsecase.Usecase) Handler {
 func (h *productHttpHandler) GetProducts(w http.ResponseWriter, _ *http.Request) {
 	products, err := h.usecase.GetProducts()
 	if err != nil {
-		responder.ErrorJSON(w, err, http.StatusInternalServerError)
+		responder.ErrorJSON(w, err)
 	}
 
 	responder.WriteJSON(w, products, http.StatusOK)
@@ -28,12 +28,12 @@ func (h *productHttpHandler) GetProducts(w http.ResponseWriter, _ *http.Request)
 
 func createProductElement[T any](w http.ResponseWriter, r *http.Request, element T, usecaseFunc func(element *T) error) {
 	if err := decoder.Bind(w, r, &element); err != nil {
-		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
+		responder.ErrorJSON(w, errorDomain.ErrBadRequest)
 	}
 
 	err := usecaseFunc(&element)
 	if err != nil {
-		responder.ErrorJSON(w, errorDomain.ErrBadRequest, http.StatusBadRequest)
+		responder.ErrorJSON(w, err)
 	}
 
 	responder.WriteJSON(w, element, http.StatusOK)
