@@ -1,7 +1,7 @@
 package product
 
 import (
-	"myclothing/entities/product"
+	"myclothing/domain/product"
 )
 
 type Repository interface {

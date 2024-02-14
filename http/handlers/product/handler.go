@@ -1,8 +1,8 @@
 package product
 
 import (
-	productDomain "myclothing/entities/product"
-	errorDomain "myclothing/error"
+	errorDomain "myclothing/domain/error"
+	productDomain "myclothing/domain/product"
 	"myclothing/http/helpers/decoder"
 	"myclothing/http/helpers/responder"
 	productUsecase "myclothing/usecases/product"
