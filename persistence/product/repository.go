@@ -62,13 +62,11 @@ func (r *productPostgresRepository) SelectProductCategoryById(categoryId int32) 
 		return nil, appError.ErrRepository
 	}
 
-	category := &productDomain.Category{
+	return &productDomain.Category{
 		Id:          int(row.ID),
 		Name:        row.Name,
 		Description: row.Description,
-	}
-
-	return category, nil
+	}, nil
 }
 
 func (r *productPostgresRepository) SelectProductSubcategoryById(subcategoryId int32) (*productDomain.Subcategory, error) {
@@ -83,14 +81,12 @@ func (r *productPostgresRepository) SelectProductSubcategoryById(subcategoryId i
 		return nil, err
 	}
 
-	subcategory := &productDomain.Subcategory{
+	return &productDomain.Subcategory{
 		Id:             int(row.ID),
 		ParentCategory: category,
 		Name:           row.Name,
 		Description:    row.Description,
-	}
-
-	return subcategory, nil
+	}, nil
 }
 
 func (r *productPostgresRepository) SelectProductSubcategoryByCategoryId(categoryId int32) ([]productDomain.Subcategory, error) {
@@ -126,12 +122,10 @@ func (r *productPostgresRepository) SelectProductSizeByCode(sizeCode string) (*p
 		return nil, appError.ErrRepository
 	}
 
-	size := &productDomain.Size{
+	return &productDomain.Size{
 		Code:        row.Code,
 		Description: row.Description,
-	}
-
-	return size, nil
+	}, nil
 }
 
 func (r *productPostgresRepository) SelectProductColorById(colorId int32) (*productDomain.Color, error) {
@@ -141,13 +135,11 @@ func (r *productPostgresRepository) SelectProductColorById(colorId int32) (*prod
 		return nil, err
 	}
 
-	color := &productDomain.Color{
+	return &productDomain.Color{
 		Id:   int(row.ID),
 		Name: row.Name,
 		Hex:  row.Hex,
-	}
-
-	return color, nil
+	}, nil
 }
 
 func (r *productPostgresRepository) SelectProductSourceById(sourceId int32) (*productDomain.Source, error) {
@@ -157,12 +149,10 @@ func (r *productPostgresRepository) SelectProductSourceById(sourceId int32) (*pr
 		return nil, err
 	}
 
-	source := &productDomain.Source{
+	return &productDomain.Source{
 		Id:   int(row.ID),
 		Name: row.Name,
-	}
-
-	return source, nil
+	}, nil
 }
 
 func (r *productPostgresRepository) InsertProduct(product *productDomain.Product) error {
