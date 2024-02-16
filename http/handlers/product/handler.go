@@ -26,7 +26,12 @@ func (h *productHttpHandler) GetProducts(w http.ResponseWriter, _ *http.Request)
 	responder.WriteJSON(w, products, http.StatusOK)
 }
 
-func createProductElement[T any](w http.ResponseWriter, r *http.Request, element T, usecaseFunc func(element *T) error) {
+func createProductElement[T any](
+	w http.ResponseWriter,
+	r *http.Request,
+	element T,
+	usecaseFunc func(element *T) error,
+) {
 	if err := decoder.Bind(w, r, &element); err != nil {
 		responder.ErrorJSON(w, errorDomain.ErrBadRequest)
 	}
