@@ -103,13 +103,15 @@ func (r *productPostgresRepository) SelectProductSubcategoryByCategoryId(categor
 
 	subcategories := make([]productDomain.Subcategory, 0)
 	for _, row := range rows {
-		subcategory := &productDomain.Subcategory{
-			Id:             int(row.ID),
-			ParentCategory: category,
-			Name:           row.Name,
-			Description:    row.Description,
-		}
-		subcategories = append(subcategories, *subcategory)
+		subcategories = append(
+			subcategories,
+			productDomain.Subcategory{
+				Id:             int(row.ID),
+				ParentCategory: category,
+				Name:           row.Name,
+				Description:    row.Description,
+			},
+		)
 	}
 
 	return subcategories, nil
@@ -174,26 +176,27 @@ func (r *productPostgresRepository) InsertProduct(product *productDomain.Product
 		offerPercent.Valid = true
 	}
 
-	params := sqlc.CreateProductParams{
-		SubcategoryID: int32(product.Subcategory.Id),
-		Name:          product.Name,
-		Description:   description,
-		Price:         fmt.Sprintf("%f", product.Price),
-		Cost:          fmt.Sprintf("%f", product.Cost),
-		Quantity:      int32(product.Quantity),
-		SizeCode:      product.Size.Code,
-		ColorID:       int32(product.Color.Id),
-		Brand:         product.Brand,
-		Sku:           product.Sku,
-		Upc:           product.Upc,
-		ImageUrl:      product.ImageUrl,
-		SourceID:      int32(product.Source.Id),
-		SourceUrl:     sourceUrl,
-		IsOffered:     product.IsOffered,
-		OfferPercent:  offerPercent,
-	}
-
-	productId, err := r.queries.CreateProduct(r.ctx, params)
+	productId, err := r.queries.CreateProduct(
+		r.ctx,
+		sqlc.CreateProductParams{
+			SubcategoryID: int32(product.Subcategory.Id),
+			Name:          product.Name,
+			Description:   description,
+			Price:         fmt.Sprintf("%f", product.Price),
+			Cost:          fmt.Sprintf("%f", product.Cost),
+			Quantity:      int32(product.Quantity),
+			SizeCode:      product.Size.Code,
+			ColorID:       int32(product.Color.Id),
+			Brand:         product.Brand,
+			Sku:           product.Sku,
+			Upc:           product.Upc,
+			ImageUrl:      product.ImageUrl,
+			SourceID:      int32(product.Source.Id),
+			SourceUrl:     sourceUrl,
+			IsOffered:     product.IsOffered,
+			OfferPercent:  offerPercent,
+		},
+	)
 	if err != nil {
 		slog.Error("InsertProduct:", err)
 		return err
@@ -205,12 +208,13 @@ func (r *productPostgresRepository) InsertProduct(product *productDomain.Product
 }
 
 func (r *productPostgresRepository) InsertProductCategory(category *productDomain.Category) error {
-	params := sqlc.CreateProductCategoryParams{
-		Name:        category.Name,
-		Description: category.Description,
-	}
-
-	categoryId, err := r.queries.CreateProductCategory(r.ctx, params)
+	categoryId, err := r.queries.CreateProductCategory(
+		r.ctx,
+		sqlc.CreateProductCategoryParams{
+			Name:        category.Name,
+			Description: category.Description,
+		},
+	)
 	if err != nil {
 		slog.Error("InsertProductCategory:", err)
 		return err
@@ -222,13 +226,14 @@ func (r *productPostgresRepository) InsertProductCategory(category *productDomai
 }
 
 func (r *productPostgresRepository) InsertProductSubcategory(subcategory *productDomain.Subcategory) error {
-	params := sqlc.CreateProductSubcategoryParams{
-		ParentCategoryID: int32(subcategory.ParentCategory.Id),
-		Name:             subcategory.Name,
-		Description:      subcategory.Description,
-	}
-
-	subcategoryId, err := r.queries.CreateProductSubcategory(r.ctx, params)
+	subcategoryId, err := r.queries.CreateProductSubcategory(
+		r.ctx,
+		sqlc.CreateProductSubcategoryParams{
+			ParentCategoryID: int32(subcategory.ParentCategory.Id),
+			Name:             subcategory.Name,
+			Description:      subcategory.Description,
+		},
+	)
 	if err != nil {
 		slog.Error("InsertProductSubcategory:", err)
 		return err
@@ -240,10 +245,13 @@ func (r *productPostgresRepository) InsertProductSubcategory(subcategory *produc
 }
 
 func (r *productPostgresRepository) InsertProductColor(productColor *productDomain.Color) error {
-	colorId, err := r.queries.CreateProductColor(r.ctx, sqlc.CreateProductColorParams{
-		Name: productColor.Name,
-		Hex:  productColor.Hex,
-	})
+	colorId, err := r.queries.CreateProductColor(
+		r.ctx,
+		sqlc.CreateProductColorParams{
+			Name: productColor.Name,
+			Hex:  productColor.Hex,
+		},
+	)
 	if err != nil {
 		slog.Error("InsertProductColor:", err)
 	}
