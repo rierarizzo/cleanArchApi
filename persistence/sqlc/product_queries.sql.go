@@ -84,6 +84,27 @@ func (q *Queries) CreateProductCategory(ctx context.Context, arg CreateProductCa
 	return id, err
 }
 
+const createProductColor = `-- name: CreateProductColor :one
+insert
+	into product_color
+		( name, hex )
+	values
+		( $1, $2 )
+	returning id
+`
+
+type CreateProductColorParams struct {
+	Name string
+	Hex  string
+}
+
+func (q *Queries) CreateProductColor(ctx context.Context, arg CreateProductColorParams) (int32, error) {
+	row := q.db.QueryRowContext(ctx, createProductColor, arg.Name, arg.Hex)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const createProductSource = `-- name: CreateProductSource :one
 insert
 	into product_source

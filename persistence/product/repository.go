@@ -239,6 +239,20 @@ func (r *productPostgresRepository) InsertProductSubcategory(subcategory *produc
 	return nil
 }
 
+func (r *productPostgresRepository) InsertProductColor(productColor *productDomain.Color) error {
+	colorId, err := r.queries.CreateProductColor(r.ctx, sqlc.CreateProductColorParams{
+		Name: productColor.Name,
+		Hex:  productColor.Hex,
+	})
+	if err != nil {
+		slog.Error("InsertProductColor:", err)
+	}
+
+	productColor.Id = int(colorId)
+
+	return nil
+}
+
 func (r *productPostgresRepository) InsertProductSource(source *productDomain.Source) error {
 	sourceId, err := r.queries.CreateProductSource(r.ctx, source.Name)
 	if err != nil {

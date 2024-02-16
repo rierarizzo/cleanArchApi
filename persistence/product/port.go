@@ -15,5 +15,6 @@ type Repository interface {
 	InsertProduct(product *product.Product) error
 	InsertProductCategory(productCategory *product.Category) error
 	InsertProductSubcategory(productSubcategory *product.Subcategory) error
+	InsertProductColor(productColor *product.Color) error
 	InsertProductSource(productSource *product.Source) error
 }

@@ -7,5 +7,6 @@ type Handler interface {
 	CreateProduct(w http.ResponseWriter, r *http.Request)
 	CreateProductCategory(w http.ResponseWriter, r *http.Request)
 	CreateProductSubcategory(w http.ResponseWriter, r *http.Request)
+	CreateProductColor(w http.ResponseWriter, r *http.Request)
 	CreateProductSource(w http.ResponseWriter, r *http.Request)
 }

@@ -54,6 +54,11 @@ func (h *productHttpHandler) CreateProductSubcategory(w http.ResponseWriter, r *
 	createProductElement(w, r, subcategory, h.usecase.CreateProductSubcategory)
 }
 
+func (h *productHttpHandler) CreateProductColor(w http.ResponseWriter, r *http.Request) {
+	var color productDomain.Color
+	createProductElement(w, r, color, h.usecase.CreateProductColor)
+}
+
 func (h *productHttpHandler) CreateProductSource(w http.ResponseWriter, r *http.Request) {
 	var source productDomain.Source
 	createProductElement(w, r, source, h.usecase.CreateProductSource)

@@ -66,6 +66,14 @@ insert
 		( $1 )
 	returning id;
 
+-- name: CreateProductColor :one
+insert
+	into product_color
+		( name, hex )
+	values
+		( $1, $2 )
+	returning id;
+
 -- name: CreateProduct :one
 insert
 	into product
