@@ -47,4 +47,5 @@ func (s *echoServer) initializeProductHttpHandler() {
 	s.mux.HandleFunc("POST /v1/product/category", productHttpHandler.CreateProductCategory)
 	s.mux.HandleFunc("POST /v1/product/subcategory", productHttpHandler.CreateProductSubcategory)
 	s.mux.HandleFunc("POST /v1/product/source", productHttpHandler.CreateProductSource)
+	s.mux.HandleFunc("POST /v1/product/color", productHttpHandler.CreateProductColor)
 }
